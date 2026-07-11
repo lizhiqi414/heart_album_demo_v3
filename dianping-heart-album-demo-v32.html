@@ -1,0 +1,5847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>心选专辑_主态视角</title>
+  <style>
+    :root {
+      --orange: #ff6d01;
+      --page: #f7f8fa;
+      --album-page: #f5f5f5;
+      --text: #171717;
+      --muted: #8a8a8a;
+      --hairline: #ececec;
+      --card: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px 0;
+      background: #f0f0f0;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+      border: 0;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .phone {
+      width: 375px;
+      height: 812px;
+      position: relative;
+      overflow: hidden;
+      background: var(--page);
+      border: 8px solid #333;
+      border-radius: 40px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.24);
+    }
+
+    @media (max-width: 420px) {
+      body {
+        align-items: flex-start;
+        padding: 0;
+        background: #fff;
+      }
+
+      .phone {
+        width: 100vw;
+        height: 100vh;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateX(12px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 220ms ease;
+    }
+
+    .screen.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      height: 44px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+      font-size: 15px;
+      font-weight: 650;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #222;
+    }
+
+    .signal {
+      width: 19px;
+      height: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 3px);
+      align-items: end;
+      gap: 2px;
+    }
+
+    .signal i {
+      display: block;
+      width: 3px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .signal i:nth-child(1) { height: 4px; }
+    .signal i:nth-child(2) { height: 6px; }
+    .signal i:nth-child(3) { height: 9px; }
+    .signal i:nth-child(4) { height: 12px; }
+
+    .wifi {
+      position: relative;
+      width: 17px;
+      height: 12px;
+    }
+
+    .wifi::before,
+    .wifi::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      border: 2px solid currentColor;
+      border-bottom: 0;
+      border-radius: 14px 14px 0 0;
+      transform: translateX(-50%);
+    }
+
+    .wifi::before {
+      width: 17px;
+      height: 10px;
+      top: 0;
+    }
+
+    .wifi::after {
+      width: 9px;
+      height: 5px;
+      bottom: 1px;
+    }
+
+    .battery {
+      width: 25px;
+      height: 12px;
+      border: 1.8px solid currentColor;
+      border-radius: 3px;
+      position: relative;
+    }
+
+    .battery::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      width: 16px;
+      height: 6px;
+      border-radius: 1px;
+      background: currentColor;
+    }
+
+    .battery::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 3px;
+      width: 2px;
+      height: 5px;
+      border-radius: 0 2px 2px 0;
+      background: currentColor;
+    }
+
+    .scroll {
+      flex: 1;
+      height: 100%;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .scroll::-webkit-scrollbar,
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tap {
+      transition: transform 100ms ease, filter 100ms ease, background-color 100ms ease;
+    }
+
+    .tap:active {
+      transform: scale(0.965);
+      filter: brightness(0.96);
+    }
+
+    .profile-scroll {
+      padding-bottom: 92px;
+      background: var(--page);
+    }
+
+    .profile-tools {
+      position: absolute;
+      right: 16px;
+      top: 51px;
+      z-index: 42;
+      display: flex;
+      gap: 18px;
+      color: #333;
+      font-size: 23px;
+      line-height: 1;
+    }
+
+    .sticky-title {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      height: 96px;
+      padding-bottom: 12px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      border-bottom: 1px solid #f1f1f1;
+      background: rgba(255, 255, 255, 0.91);
+      backdrop-filter: blur(14px);
+      opacity: 0;
+      transition: opacity 160ms ease;
+      font-weight: 750;
+    }
+
+    .profile-hero {
+      padding: 80px 20px 24px;
+      background: linear-gradient(180deg, #fff9f5 0%, #fff 100%);
+    }
+
+    .profile-main {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .identity {
+      display: flex;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 64px;
+      height: 64px;
+      flex: 0 0 auto;
+      overflow: hidden;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background: #dedede;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .name-block {
+      padding-top: 3px;
+      min-width: 0;
+    }
+
+    .name-block h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 28px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .stats {
+      margin-top: 4px;
+      display: flex;
+      gap: 12px;
+      color: #6f6f6f;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+
+    .stats strong {
+      color: #171717;
+      font-weight: 760;
+    }
+
+    .home-link {
+      margin-top: 9px;
+      display: inline-flex;
+      align-items: center;
+      gap: 1px;
+      white-space: nowrap;
+      color: #9b9b9b;
+      font-size: 12px;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 650;
+    }
+
+    .badge.level {
+      color: #936100;
+      background: #fff8df;
+      border: 1px solid #fff0b9;
+    }
+
+    .badge.medal {
+      color: #b65500;
+      background: #fff2e6;
+      border: 1px solid #ffdaba;
+    }
+
+    .badge.vip {
+      color: #f5ca5c;
+      background: #29231d;
+    }
+
+    .quick-actions {
+      margin: -8px 16px 0;
+      display: flex;
+      gap: 8px;
+    }
+
+    .quick-card {
+      position: relative;
+      flex: 1;
+      height: 80px;
+      min-width: 0;
+      padding: 12px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    .quick-card.checkin {
+      background: #e8f5e9;
+    }
+
+    .quick-card.footprint {
+      background: #e3f2fd;
+    }
+
+    .quick-card.album-entry {
+      background: #fff8e1;
+    }
+
+    .quick-new-bubble {
+      position: absolute;
+      top: -8px;
+      right: -7px;
+      min-width: 28px;
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: #ff6d01;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 900;
+      box-shadow: 0 6px 14px rgba(255, 109, 1, 0.28);
+    }
+
+    .quick-card h2 {
+      margin: 0;
+      color: #262626;
+      font-size: 14px;
+      line-height: 18px;
+      font-weight: 800;
+    }
+
+    .quick-meta {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #ea6500;
+      font-size: 10px;
+      line-height: 12px;
+      font-weight: 650;
+    }
+
+    .mini-icon {
+      width: 12px;
+      height: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: currentColor;
+      flex: 0 0 auto;
+    }
+
+    .profile-section {
+      margin: 16px 16px 0;
+    }
+
+    .panel {
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: 0 1px 6px rgba(20, 20, 20, 0.035);
+    }
+
+    .reviews-panel {
+      padding: 16px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      color: #222;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .section-head h3 {
+      margin: 0;
+      font: inherit;
+    }
+
+    .review-content {
+      display: flex;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .review-stats {
+      flex: 0 0 auto;
+      display: grid;
+      gap: 8px;
+      padding-top: 1px;
+    }
+
+    .review-stat {
+      color: #666;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .review-stat strong {
+      color: #222;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .review-stat em {
+      margin-left: 8px;
+      color: var(--orange);
+      font-size: 10px;
+      font-style: normal;
+      font-weight: 800;
+    }
+
+    .review-thumbs {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 1px;
+    }
+
+    .review-thumb {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      flex: 0 0 80px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #eee;
+    }
+
+    .review-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .rating-chip {
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      bottom: 4px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.43);
+      color: #fff;
+      font-size: 8px;
+      backdrop-filter: blur(8px);
+    }
+
+    .grid-panel {
+      padding: 20px 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      row-gap: 24px;
+    }
+
+    .menu-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: #333;
+      font-size: 12px;
+    }
+
+    .menu-icon-bg,
+    .menu-icon-plain {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .menu-icon-bg.orange {
+      color: #fb923c;
+      background: #fff2e8;
+    }
+
+    .menu-icon-bg.yellow {
+      color: #f8c83f;
+      background: #fff9dc;
+    }
+
+    .menu-icon-plain {
+      color: #222;
+      background: transparent;
+    }
+
+    .count-badge {
+      position: absolute;
+      top: -1px;
+      right: 19px;
+      min-width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      background: var(--orange);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .red-dot {
+      position: absolute;
+      top: 3px;
+      right: 29px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .dots i {
+      display: block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #e2e2e2;
+    }
+
+    .dots i:first-child {
+      background: var(--orange);
+    }
+
+    .creator-section {
+      margin-top: 24px;
+    }
+
+    .creator-panel {
+      padding: 16px;
+    }
+
+    .creator-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      row-gap: 16px;
+    }
+
+    .creator-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: #222;
+      font-size: 10px;
+    }
+
+    .creator-item b {
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 500;
+    }
+
+    .mini-promos {
+      margin: 16px 16px 32px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .promo-card {
+      flex: 1;
+      min-width: 0;
+      height: 68px;
+      padding: 12px;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 1px 6px rgba(20, 20, 20, 0.035);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .promo-title {
+      display: block;
+      color: #222;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 20px;
+    }
+
+    .promo-sub {
+      display: block;
+      margin-top: 1px;
+      color: #9a9a9a;
+      font-size: 10px;
+      line-height: 14px;
+    }
+
+    .promo-img {
+      width: 40px;
+      height: 40px;
+      flex: 0 0 40px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #fff2e8;
+    }
+
+    .promo-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .bottom-tab {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 24;
+      height: 84px;
+      padding: 8px 16px 0;
+      border-top: 1px solid #f1f1f1;
+      background: #fff;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .tab-item {
+      width: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      color: #8a8a8a;
+      font-size: 10px;
+    }
+
+    .tab-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .tab-active {
+      color: var(--orange);
+      font-weight: 800;
+    }
+
+    .plus-tab {
+      width: 56px;
+      margin-top: -24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .plus-button {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--orange);
+      color: #fff;
+      font-size: 28px;
+      box-shadow: 0 8px 18px rgba(255, 109, 1, 0.25);
+    }
+
+    .home-indicator {
+      position: absolute;
+      left: 50%;
+      bottom: 6px;
+      width: 134px;
+      height: 5px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 104px;
+      z-index: 80;
+      padding: 9px 14px;
+      transform: translate(-50%, 12px);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.74);
+      opacity: 0;
+      font-size: 12px;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .album-screen {
+      background: var(--album-page);
+    }
+
+    .album-header {
+      flex: 0 0 auto;
+      padding: 48px 16px 16px;
+      background: var(--album-page);
+    }
+
+    .album-topline {
+      position: relative;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .back-button {
+      position: absolute;
+      left: -4px;
+      top: 50%;
+      width: 40px;
+      height: 40px;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #222;
+      font-size: 26px;
+    }
+
+    .album-title {
+      margin: 0;
+      color: #111;
+      font-size: 22px;
+      line-height: 30px;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .category-tabs {
+      margin-top: 15px;
+      padding: 0 2px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .category-tab {
+      flex: 0 0 auto;
+      padding: 6px 0;
+      color: #202020;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .category-tab.active {
+      min-width: 72px;
+      padding: 6px 20px;
+      border-radius: 999px;
+      color: #fff;
+      text-align: center;
+      background: var(--orange);
+      box-shadow: 0 1px 3px rgba(255, 109, 1, 0.2);
+    }
+
+    .album-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 16px 82px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .album-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .album-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .album-card {
+      position: relative;
+      min-height: 144px;
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.035);
+      text-align: left;
+    }
+
+    .album-new-bubble {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      z-index: 3;
+      min-width: 28px;
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: #ff6d01;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 900;
+      box-shadow: 0 6px 14px rgba(255, 109, 1, 0.28);
+    }
+
+    .cover {
+      width: 120px;
+      height: 120px;
+      flex: 0 0 120px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #fff2e8;
+    }
+
+    .cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .album-info {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .album-info h2 {
+      margin: 1px 0 0;
+      color: #111;
+      font-size: 17px;
+      line-height: 22px;
+      font-weight: 850;
+    }
+
+    .album-stats {
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #888;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .album-stats span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .album-stats svg {
+      width: 13px;
+      height: 13px;
+      flex: 0 0 auto;
+    }
+
+    .album-stats .heart {
+      color: #ef6a6a;
+    }
+
+    .dish-strip {
+      margin-top: auto;
+      padding-top: 10px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .dish-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .dish-strip img {
+      width: 56px;
+      height: 56px;
+      flex: 0 0 56px;
+      border-radius: 6px;
+      object-fit: cover;
+      scroll-snap-align: start;
+      background: #eee;
+    }
+
+    .merchant-count {
+      height: 56px;
+      flex: 0 0 auto;
+      padding: 0 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      color: #888;
+      background: rgba(0, 0, 0, 0.05);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .album-bottom-nav {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 25;
+      height: 64px;
+      padding: 6px 16px 10px;
+      border-top: 1px solid #f0f0f0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+
+    .album-nav-item {
+      min-width: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: #999;
+      font-size: 10px;
+    }
+
+    .album-nav-item.active {
+      color: var(--orange);
+    }
+
+    .album-nav-item svg {
+      width: 21px;
+      height: 21px;
+    }
+
+    .detail-screen {
+      background: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .detail-screen .status-bar {
+      z-index: 70;
+    }
+
+    .detail-shell {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-header {
+      position: relative;
+      z-index: 90;
+      min-height: 156px;
+      padding: 54px 16px 14px;
+      background: #fff;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .detail-titlebar,
+    .detail-map-titlebar {
+      width: 100%;
+    }
+
+    .detail-titlebar {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .detail-map-titlebar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .detail-left {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-back,
+    .detail-share-button,
+    .detail-manage-button,
+    .detail-icon-button,
+    .detail-popup-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      transition: transform 100ms ease, background 120ms ease, opacity 120ms ease;
+    }
+
+    .detail-back:active,
+    .detail-share-button:active,
+    .detail-manage-button:active,
+    .detail-icon-button:active,
+    .detail-popup-close:active {
+      transform: scale(0.94);
+      opacity: 0.72;
+    }
+
+    .detail-back {
+      width: 28px;
+      height: 28px;
+      margin-left: -2px;
+      color: #111827;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .detail-album-summary {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .detail-album-cover {
+      width: 88px;
+      height: 88px;
+      flex: 0 0 88px;
+      border-radius: 14px;
+      object-fit: cover;
+      background: #f3f4f6;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .detail-album-copy {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-self: stretch;
+      justify-content: flex-start;
+    }
+
+    .detail-album-title-row {
+      min-width: 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .detail-album-title-row h1,
+    .detail-map-titlebar h1 {
+      margin: 0;
+      color: #111827;
+      font-size: 18px;
+      line-height: 24px;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .detail-album-title-row h1 {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .detail-album-copy p {
+      margin: 7px 0 0;
+      color: #9ca3af;
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      font-size: 12px;
+      line-height: 18px;
+      letter-spacing: 0;
+    }
+
+    .detail-album-meta {
+      margin-top: auto;
+      color: #9ca3af;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 11px;
+      line-height: 14px;
+      letter-spacing: 0;
+    }
+
+    .detail-title-actions {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .detail-share-button,
+    .detail-manage-button {
+      width: 26px;
+      height: 26px;
+      flex: 0 0 26px;
+      border-radius: 999px;
+      background: transparent;
+      color: #111827;
+    }
+
+    .detail-share-button svg {
+      width: 21px;
+      height: 21px;
+    }
+
+    .detail-manage-button {
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+
+    .detail-manage-menu {
+      position: absolute;
+      top: 92px;
+      right: 16px;
+      z-index: 120;
+      width: 184px;
+      overflow: hidden;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.92);
+      color: #fff;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition: opacity 140ms ease, transform 140ms ease;
+    }
+
+    .detail-manage-menu.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .detail-manage-menu button {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 16px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      text-align: left;
+      font-size: 16px;
+      line-height: 22px;
+      font-weight: 650;
+    }
+
+    .detail-manage-menu button + button {
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .detail-manage-menu button:active {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .detail-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-search-pill {
+      max-width: 120px;
+      min-width: 90px;
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(243, 244, 246, 0.8);
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .detail-search-pill span:last-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .detail-icon-button {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: #f9fafb;
+      color: #4b5563;
+      font-size: 22px;
+    }
+
+    .detail-nav {
+      position: relative;
+      z-index: 50;
+      padding: 8px 14px;
+      background: #fff;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .detail-filter {
+      min-width: 0;
+      flex: 1 1 0;
+      height: 34px;
+      padding: 0 8px;
+      border-radius: 9px;
+      background: rgba(243, 244, 246, 0.64);
+      color: #5f6368;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .detail-filter svg {
+      width: 14px;
+      height: 14px;
+      flex: 0 0 14px;
+    }
+
+    .detail-filter.active {
+      background: rgba(243, 244, 246, 0.82);
+      color: #333;
+    }
+
+    .detail-edit-bar {
+      width: 100%;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .detail-edit-select,
+    .detail-edit-done {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      font-size: 17px;
+      font-weight: 750;
+    }
+
+    .detail-edit-select {
+      gap: 10px;
+      color: #111827;
+    }
+
+    .detail-edit-done {
+      padding: 0 2px 0 18px;
+      color: #ff6d01;
+    }
+
+    .select-box,
+    .merchant-select {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #dfe3e8;
+      border-radius: 8px;
+      background: #fff;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+      font-weight: 900;
+      transition: background 140ms ease, border-color 140ms ease, transform 120ms ease;
+    }
+
+    .select-box.is-checked,
+    .restaurant-card.is-selected .merchant-select {
+      border-color: #ff6d01;
+      background: #ff6d01;
+    }
+
+    .merchant-select {
+      position: absolute;
+      left: -40px;
+      top: 26px;
+      z-index: 2;
+      display: none;
+    }
+
+    .merchant-select:active,
+    .detail-edit-select:active,
+    .detail-edit-done:active {
+      transform: scale(0.96);
+    }
+
+    .sort-panel,
+    .price-filter-panel {
+      position: absolute;
+      top: 204px;
+      left: 0;
+      right: 0;
+      z-index: 68;
+      display: none;
+      background: rgba(255, 255, 255, 0.99);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+      backdrop-filter: blur(16px);
+    }
+
+    .sort-panel {
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+      overflow: hidden;
+    }
+
+    .sort-panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sort-options {
+      padding: 14px 24px 10px;
+    }
+
+    .sort-option {
+      width: 100%;
+      min-height: 38px;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      text-align: left;
+      font-size: 13px;
+      line-height: 18px;
+      font-weight: 650;
+    }
+
+    .sort-option.active {
+      color: #ff6d01;
+      font-weight: 850;
+    }
+
+    .price-filter-panel {
+      bottom: 0;
+      overflow: hidden;
+    }
+
+    .price-filter-panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .filter-body {
+      min-height: 0;
+      flex: 1 1 auto;
+      display: flex;
+    }
+
+    .filter-sidebar {
+      width: 92px;
+      flex: 0 0 92px;
+      padding: 6px 0;
+      background: #f6f6f6;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .filter-sidebar::-webkit-scrollbar,
+    .filter-main::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-side-tab {
+      width: 100%;
+      min-height: 42px;
+      padding: 0 10px 0 16px;
+      border-left: 3px solid transparent;
+      color: #404348;
+      display: flex;
+      align-items: center;
+      text-align: left;
+      font-size: 13px;
+      line-height: 17px;
+      font-weight: 650;
+    }
+
+    .filter-side-tab.active {
+      border-left-color: #ff6d01;
+      background: #fff;
+      color: #ff6d01;
+      font-weight: 850;
+    }
+
+    .filter-main {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 16px 14px 16px;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .filter-section {
+      margin-bottom: 22px;
+    }
+
+    .price-filter-title,
+    .filter-section h2 {
+      margin: 0 0 14px;
+      color: #111;
+      font-size: 16px;
+      line-height: 22px;
+      font-weight: 850;
+    }
+
+    .price-chip-grid,
+    .filter-chip-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px 9px;
+    }
+
+    .price-chip,
+    .filter-chip {
+      height: 36px;
+      min-width: 0;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: #f5f5f5;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 120ms ease, color 120ms ease, transform 100ms ease;
+    }
+
+    .price-chip:active,
+    .filter-chip:active,
+    .sort-option:active {
+      transform: scale(0.97);
+    }
+
+    .price-chip.active,
+    .filter-chip.active {
+      background: #fff1e8;
+      color: var(--orange);
+    }
+
+    .price-range-box {
+      margin-top: 14px;
+      padding: 10px 4px 2px;
+    }
+
+    .price-range-labels {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: #9ca3af;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .price-range {
+      position: relative;
+      height: 46px;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .price-track {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      top: 22px;
+      height: 5px;
+      border-radius: 999px;
+      background: #eceff3;
+    }
+
+    .price-track-active {
+      position: absolute;
+      top: 22px;
+      height: 5px;
+      border-radius: 999px;
+      background: #8ab8ff;
+    }
+
+    .price-handle {
+      position: absolute;
+      top: 5px;
+      min-width: 46px;
+      height: 32px;
+      padding: 0 9px;
+      transform: translateX(-50%);
+      border: 1.5px solid #a9c7ff;
+      border-radius: 11px;
+      background: #fff;
+      color: #2f73ff;
+      box-shadow: 0 6px 14px rgba(47, 115, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: grab;
+      touch-action: none;
+      z-index: 2;
+    }
+
+    .price-handle.dragging {
+      cursor: grabbing;
+      transform: translateX(-50%) scale(1.04);
+    }
+
+    .filter-footer {
+      flex: 0 0 auto;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      border-top: 1px solid #ececec;
+      background: #fff;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .filter-reset,
+    .price-confirm {
+      width: 100%;
+      height: 48px;
+      border-radius: 999px;
+      font-size: 17px;
+      font-weight: 850;
+    }
+
+    .filter-reset {
+      border: 1px solid #d4d4d4;
+      background: #fff;
+      color: #111;
+    }
+
+    .price-confirm {
+      background: var(--orange);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(255, 109, 1, 0.22);
+    }
+
+    .restaurant-card.price-hidden,
+    .detail-marker.price-hidden,
+    .detail-shell.is-map-mode .restaurant-card.price-hidden,
+    .detail-shell.is-map-mode .detail-marker.price-hidden {
+      display: none;
+    }
+
+    .detail-map-toggle {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      padding: 0;
+      border-radius: 9px;
+      background: #ff6d01;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 100ms ease, color 140ms ease, background 140ms ease;
+      white-space: nowrap;
+    }
+
+    .detail-map-toggle svg {
+      width: 23px;
+      height: 23px;
+    }
+
+    .detail-map-toggle-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    .detail-map-toggle:active {
+      transform: scale(0.95);
+    }
+
+    .detail-content {
+      flex: 1;
+      padding: 16px 16px 34px;
+      overflow-y: auto;
+      background: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .detail-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    .detail-edit-actions {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 95;
+      display: none;
+      gap: 12px;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(14px);
+    }
+
+    .detail-edit-action {
+      flex: 1 1 0;
+      height: 52px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 17px;
+      font-weight: 850;
+    }
+
+    .detail-edit-action svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .detail-edit-action.delete {
+      background: #f3f4f6;
+      color: #5f6368;
+    }
+
+    .detail-edit-action.share {
+      display: none;
+    }
+
+    .restaurant-card {
+      position: relative;
+      padding: 20px;
+      border: 1px solid #f1f1f1;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 1px 5px rgba(15, 23, 42, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .rank-crown {
+      position: absolute;
+      top: 5px;
+      left: -8px;
+      z-index: 3;
+      width: 24px;
+      height: 24px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      transform: rotate(-18deg);
+      pointer-events: none;
+    }
+
+    .rank-crown.show {
+      display: flex;
+    }
+
+    .rank-crown.gold {
+      filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.16));
+    }
+
+    .rank-crown.silver {
+      filter: grayscale(1) brightness(1.45) contrast(0.82) drop-shadow(0 2px 4px rgba(15, 23, 42, 0.14));
+    }
+
+    .rank-crown.bronze {
+      filter: sepia(1) saturate(1.7) hue-rotate(332deg) brightness(0.82) drop-shadow(0 2px 4px rgba(15, 23, 42, 0.14));
+    }
+
+    .restaurant-head {
+      margin-bottom: 5px;
+    }
+
+    .restaurant-head h2 {
+      margin: 0;
+      color: #000;
+      font-size: 20px;
+      line-height: 26px;
+      font-weight: 850;
+    }
+
+    .stars {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .stars span {
+      width: 15px;
+      height: 15px;
+      border-radius: 3px;
+      background: #ff6433;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 900;
+    }
+
+    .stars .gray {
+      background: #d7d9de;
+      color: #fff;
+    }
+
+    .restaurant-meta {
+      margin-bottom: 6px;
+      color: #111;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      line-height: 19px;
+    }
+
+    .restaurant-rating-left {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #7a7a7a;
+      white-space: nowrap;
+    }
+
+    .rating-score {
+      color: #ff6433;
+      font-size: 15px;
+      line-height: 19px;
+      font-weight: 850;
+    }
+
+    .review-count {
+      color: #666;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 520;
+    }
+
+    .restaurant-meta strong {
+      color: #111;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .restaurant-category-line {
+      margin-bottom: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      color: #777;
+      font-size: 13px;
+      line-height: 20px;
+      font-weight: 560;
+    }
+
+    .restaurant-category-line .rank-tag {
+      max-width: 100%;
+      padding: 2px 7px 2px 5px;
+      border-radius: 0;
+      background: #ffeadb;
+      color: #b65a28;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 680;
+      white-space: nowrap;
+    }
+
+    .restaurant-category-line .rank-tag::before {
+      content: "榜";
+      margin-right: 5px;
+      padding: 1px 3px;
+      background: rgba(255, 112, 55, 0.16);
+      color: #ff6433;
+      font-weight: 850;
+    }
+
+    .restaurant-tags {
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .restaurant-tags span {
+      padding: 2px 8px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      color: #6b7280;
+      background: #fff;
+      font-size: 10px;
+      line-height: 16px;
+    }
+
+    .dish-grid {
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .detail-dish {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #f3f4f6;
+    }
+
+    .detail-dish img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .dish-label {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      max-width: 100%;
+      padding: 2px 6px;
+      border-top-left-radius: 3px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.55);
+      font-size: 11px;
+      line-height: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .recommend-row {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .recommend-row img {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      object-fit: cover;
+      background: #e5e7eb;
+    }
+
+    .recommend-row span {
+      color: #4b5563;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .review-copy {
+      margin-bottom: 16px;
+      color: #1f2937;
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .review-copy .review-date {
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      color: #9ca3af;
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .review-copy .review-date strong {
+      margin-left: 12px;
+      color: #4b5563;
+      font-weight: 700;
+    }
+
+    .review-copy p {
+      margin: 0;
+    }
+
+    .detail-divider {
+      height: 1px;
+      margin-bottom: 12px;
+      background: #f3f4f6;
+    }
+
+    .been-row {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #9ca3af;
+      font-size: 12px;
+    }
+
+    .been-friends {
+      display: flex;
+      align-items: center;
+    }
+
+    .friend-stack {
+      display: flex;
+      margin-left: 8px;
+    }
+
+    .friend-stack img {
+      width: 24px;
+      height: 24px;
+      margin-left: -8px;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      object-fit: cover;
+      background: #f3f4f6;
+    }
+
+    .friend-stack img:first-child {
+      margin-left: 0;
+    }
+
+    .detail-map {
+      position: absolute;
+      top: 144px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 5;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      background: #eef2f3;
+      transition: opacity 0.5s ease;
+      border-bottom-left-radius: 36px;
+      border-bottom-right-radius: 36px;
+    }
+
+    .map-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 70% 12%, rgba(208, 235, 224, 0.8), transparent 22%),
+        radial-gradient(circle at 18% 76%, rgba(219, 234, 254, 0.9), transparent 26%),
+        linear-gradient(135deg, #eef2f5 0%, #f7f8fa 100%);
+    }
+
+    .map-bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(0.1) brightness(1.05);
+    }
+
+    .map-grid-overlay,
+    .map-road-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .map-grid-overlay {
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    .map-road-overlay {
+      background:
+        linear-gradient(105deg, transparent 45%, rgba(254, 243, 199, 0.4) 46%, rgba(254, 243, 199, 0.4) 54%, transparent 55%),
+        linear-gradient(15deg, transparent 48%, rgba(254, 243, 199, 0.3) 49%, rgba(254, 243, 199, 0.3) 51%, transparent 52%);
+    }
+
+    .detail-marker {
+      position: absolute;
+      z-index: 10;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      touch-action: none;
+      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s ease;
+    }
+
+    .star-marker {
+      width: 28px;
+      height: 28px;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      color: #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .star-marker.active {
+      background: #ef4444;
+      border-color: #fee2e2;
+      color: #fff;
+      transform: translate(-50%, -50%) scale(1.4);
+    }
+
+    .star-marker.dimmed {
+      opacity: 0.3;
+    }
+
+    .walk-radius {
+      position: absolute;
+      left: 186px;
+      top: 334px;
+      z-index: 8;
+      width: 170px;
+      height: 170px;
+      transform: translate(-50%, -50%);
+      border: 0;
+      border-radius: 999px;
+      background: rgba(156, 163, 175, 0.2);
+      box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(31, 41, 55, 0.82);
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 14px;
+      text-align: center;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .walk-radius-label {
+      position: absolute;
+      left: 50%;
+      top: 2px;
+      transform: translateX(-50%);
+      max-width: min(112px, calc(100% - 14px));
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.34);
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .walk-radius-handle {
+      position: absolute;
+      right: 7px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      transform: translate(50%, -50%);
+      border: 2px solid rgba(107, 114, 128, 0.45);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      cursor: ew-resize;
+    }
+
+    .walk-radius.resizing .walk-radius-handle {
+      transform: translate(50%, -50%) scale(1.08);
+    }
+
+    .user-marker {
+      width: 44px;
+      height: 44px;
+      padding: 4px;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      background: #fb923c;
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.16);
+      object-fit: contain;
+    }
+
+    #detail-user-marker {
+      cursor: grab;
+      z-index: 12;
+    }
+
+    #detail-user-marker.dragging {
+      cursor: grabbing;
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+
+    .detail-ripple {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border: 2px solid #ef4444;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: detail-ripple 2s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes detail-ripple {
+      0% { width: 32px; height: 32px; opacity: 1; }
+      100% { width: 80px; height: 80px; opacity: 0; }
+    }
+
+    .detail-popup {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 300px;
+      z-index: 100;
+      display: none;
+      padding: 16px;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      animation: popup-up 0.3s ease;
+    }
+
+    .detail-popup.active {
+      display: block;
+    }
+
+    @keyframes popup-up {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .detail-popup-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      color: #6b7280;
+      font-size: 18px;
+    }
+
+    .popup-head {
+      margin-bottom: 8px;
+      padding-right: 28px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .popup-head h3 {
+      margin: 0;
+      color: #111827;
+      font-size: 18px;
+      line-height: 24px;
+      font-weight: 850;
+    }
+
+    .popup-stars {
+      color: #fbbf24;
+      white-space: nowrap;
+    }
+
+    .popup-meta {
+      margin: 0 0 8px;
+      color: #6b7280;
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .popup-images {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .popup-images img {
+      width: 64px;
+      height: 64px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .popup-desc {
+      margin: 0;
+      color: #4b5563;
+      font-size: 12px;
+      line-height: 17px;
+    }
+
+    .detail-shell.is-map-mode .detail-titlebar {
+      display: none;
+    }
+
+    .detail-shell.is-map-mode .detail-header {
+      min-height: 64px;
+      padding: 56px 20px 12px;
+      align-items: center;
+    }
+
+    .detail-shell.is-map-mode .detail-map-titlebar {
+      display: flex;
+    }
+
+    .detail-shell.is-map-mode .price-filter-panel {
+      top: 144px;
+    }
+
+    .detail-shell.is-map-mode .sort-panel {
+      display: none;
+    }
+
+    .detail-shell.is-map-mode .detail-manage-menu {
+      display: none;
+    }
+
+    .detail-shell.is-edit-mode .detail-filter,
+    .detail-shell.is-edit-mode .detail-map-toggle,
+    .detail-shell.is-edit-mode .price-filter-panel,
+    .detail-shell.is-edit-mode .detail-manage-menu {
+      display: none;
+    }
+
+    .detail-shell.is-edit-mode .detail-edit-bar {
+      display: flex;
+    }
+
+    .detail-shell.is-edit-mode .detail-content {
+      padding-left: 54px;
+      padding-bottom: 104px;
+      background: #f5f6f7;
+      gap: 12px;
+    }
+
+    .detail-shell.is-edit-mode .restaurant-card {
+      border-color: transparent;
+      border-radius: 20px;
+      box-shadow: none;
+    }
+
+    .detail-shell.is-edit-mode .merchant-select {
+      display: flex;
+    }
+
+    .detail-shell.is-edit-mode.has-selection .detail-edit-actions {
+      display: flex;
+    }
+
+    .detail-shell.is-map-mode .detail-map {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .detail-shell.is-map-mode .detail-content {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      max-height: 280px;
+      padding: 16px 20px;
+      border-top-left-radius: 32px;
+      border-top-right-radius: 32px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.08);
+      overflow-y: auto;
+    }
+
+    .detail-shell.is-map-mode .restaurant-card:not(:first-child) {
+      display: none;
+    }
+
+    .detail-shell.is-map-mode .restaurant-card {
+      display: block;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .detail-shell.is-map-mode .restaurant-tags,
+    .detail-shell.is-map-mode .restaurant-category-line,
+    .detail-shell.is-map-mode .review-copy,
+    .detail-shell.is-map-mode .detail-divider,
+    .detail-shell.is-map-mode .been-row {
+      display: none;
+    }
+
+    .detail-shell.is-map-mode .dish-grid {
+      margin-bottom: 12px;
+    }
+
+    .detail-shell.is-map-mode .detail-map-toggle {
+      color: #fff;
+      background: #2563eb;
+    }
+
+
+
+
+    .share-screen {
+      z-index: 120;
+      transform: none;
+      transition: none;
+      background: #eef1f7;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .share-page {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      overflow: hidden;
+      background: #eef1f7;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .share-poster {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      margin: 16px 22px 12px;
+      padding: 38px 16px 26px;
+      overflow: hidden;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.2) 0 12%, transparent 13%),
+        radial-gradient(circle at 76% 20%, rgba(255, 255, 255, 0.15) 0 10%, transparent 11%),
+        radial-gradient(circle at 88% 48%, rgba(255, 255, 255, 0.12) 0 12%, transparent 13%),
+        radial-gradient(circle at 30% 62%, rgba(255, 255, 255, 0.12) 0 8%, transparent 9%),
+        linear-gradient(180deg, #8a74ff 0%, #a383ff 48%, #8a71f4 100%);
+      color: #170a45;
+      box-shadow: 0 12px 28px rgba(84, 67, 179, 0.16);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .share-top {
+      position: absolute;
+      top: 2px;
+      left: 6px;
+      right: 18px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      color: #fff;
+    }
+
+    .share-back {
+      width: 30px;
+      height: 30px;
+      color: #fff;
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .share-status,
+    .share-cord {
+      display: none;
+    }
+
+    .share-card {
+      position: relative;
+      z-index: 1;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 18% 84%, rgba(177, 234, 255, 0.55), transparent 32%),
+        radial-gradient(circle at 92% 78%, rgba(231, 215, 255, 0.58), transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(242, 248, 255, 0.98) 100%);
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.68), 0 8px 18px rgba(66, 40, 154, 0.12);
+    }
+
+    .share-hero-card {
+      flex: 1.12 1 0;
+      min-height: 248px;
+      padding: 18px 18px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .share-info-card {
+      flex: 0 0 154px;
+      padding: 15px 16px;
+    }
+
+    .share-partner-card {
+      flex: 0 0 136px;
+      padding: 15px 18px;
+    }
+
+    .share-title-ribbon {
+      width: fit-content;
+      margin: 0 auto 18px;
+      transform: none;
+      transform-origin: center;
+      color: #4214b9;
+      font-family: "PingFang SC", "Arial Black", sans-serif;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .share-title-ribbon .circled {
+      display: inline;
+      height: auto;
+      margin-left: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      font-size: inherit;
+      transform: none;
+    }
+
+    .share-hero-type {
+      margin: 0 -4px;
+      color: #070707;
+      font-family: Impact, "Arial Black", "PingFang SC", sans-serif;
+      font-size: 37px;
+      line-height: 0.88;
+      font-weight: 950;
+      letter-spacing: 0;
+      text-align: center;
+      transform: scaleX(1.12);
+    }
+
+    .share-hero-type span {
+      display: inline-block;
+      margin: 0 -2px;
+      text-shadow: 0 2px 0 rgba(255, 255, 255, 0.45);
+    }
+
+    .share-hero-type span:nth-child(1),
+    .share-hero-type span:nth-child(7) {
+      transform: translateY(9px) rotate(-2deg);
+    }
+
+    .share-hero-type span:nth-child(2),
+    .share-hero-type span:nth-child(6) {
+      transform: translateY(4px);
+    }
+
+    .share-hero-type span:nth-child(3),
+    .share-hero-type span:nth-child(5) {
+      transform: translateY(-2px);
+    }
+
+    .share-empty-stage {
+      flex: 1 1 auto;
+      min-height: 92px;
+      margin-top: 12px;
+      border-radius: 22px;
+    }
+
+    .share-rec {
+      display: none;
+      position: absolute;
+      left: 20px;
+      bottom: 14px;
+      color: #111;
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .share-copy-card {
+      position: static;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #1f2937;
+      box-shadow: none;
+    }
+
+    .share-copy-card::before,
+    .share-copy-card::after {
+      display: none;
+    }
+
+    .share-desc {
+      margin: 0 0 10px;
+      color: #333;
+      font-family: "荆南缘默体", "JingNanYuanMoTi", "PingFang SC", sans-serif;
+      font-size: 13px;
+      line-height: 21px;
+      font-weight: 520;
+    }
+
+    .share-core-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 9px;
+    }
+
+    .share-core-title {
+      margin: 0;
+      color: #111;
+      font-family: Impact, "Arial Black", "PingFang SC", sans-serif;
+      font-size: 21px;
+      line-height: 24px;
+      font-weight: 950;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .share-lightning {
+      flex: 1 1 auto;
+      height: 13px;
+      background: repeating-linear-gradient(135deg, #b8ebff 0 9px, transparent 9px 14px, #d9c7ff 14px 23px, transparent 23px 28px);
+      opacity: 0.86;
+      clip-path: polygon(0 50%, 8% 0, 16% 50%, 24% 0, 32% 50%, 40% 0, 48% 50%, 56% 0, 64% 50%, 72% 0, 80% 50%, 88% 0, 100% 50%, 88% 100%, 80% 50%, 72% 100%, 64% 50%, 56% 100%, 48% 50%, 40% 100%, 32% 50%, 24% 100%, 16% 50%, 8% 100%);
+    }
+
+    .share-core-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .share-core-item {
+      aspect-ratio: 1;
+      min-height: 0;
+      padding: 8px 4px;
+      border-radius: 15px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(232, 220, 255, 0.86));
+      color: #5a18a8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: inset 0 0 0 1px rgba(118, 88, 221, 0.06);
+    }
+
+    .share-core-item strong {
+      color: #111;
+      font-size: 16px;
+      line-height: 19px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .share-core-item span {
+      margin-top: 4px;
+      color: #57149b;
+      font-size: 10px;
+      line-height: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .share-partner {
+      position: static;
+      height: 100%;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: none;
+    }
+
+    .share-partner::before {
+      display: none;
+    }
+
+    .share-partner h2 {
+      margin: 0;
+      color: #111;
+      font-family: Impact, "Arial Black", "PingFang SC", sans-serif;
+      font-size: 21px;
+      line-height: 23px;
+      font-weight: 950;
+      letter-spacing: 0;
+      max-width: 190px;
+    }
+
+    .share-partner h2 span {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .share-partner h2 .invite-line {
+      margin-top: 3px;
+      color: #ff6d01;
+      font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      font-size: 11px;
+      line-height: 18px;
+      font-weight: 850;
+    }
+
+    .share-qr-img {
+      width: 76px;
+      height: 76px;
+      flex: 0 0 76px;
+      margin-right: 2px;
+      padding: 3px;
+      border-radius: 6px;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 5px 12px rgba(66, 40, 154, 0.12);
+    }
+
+    .share-sheet {
+      flex: 0 0 136px;
+      margin: 0;
+      padding: 14px 0 18px;
+      background: #f6f6f6;
+    }
+
+    .share-sheet h2 {
+      margin: 0 0 16px;
+      padding: 0 15px;
+      color: #111;
+      font-size: 18px;
+      line-height: 22px;
+      font-weight: 850;
+    }
+
+    .share-channel-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      padding: 0 8px;
+    }
+
+    .share-channel {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      color: #333;
+      font-size: 12px;
+      line-height: 14px;
+      font-weight: 500;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .share-channel-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 999px;
+      background: #28cc35;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 25px;
+      font-weight: 900;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .share-channel-icon svg {
+      width: 30px;
+      height: 30px;
+      display: block;
+    }
+
+    .share-channel.private .share-channel-icon {
+      background: #ff6032;
+      transform: rotate(-12deg);
+      font-size: 28px;
+    }
+
+    .share-channel.moments .share-channel-icon {
+      background: #57ca18;
+    }
+
+    .share-channel.sms .share-channel-icon {
+      background: #8bdc1c;
+    }
+
+    .share-channel.link .share-channel-icon {
+      background: #fff;
+      color: #666;
+      box-shadow: inset 0 0 0 1px #e5e7eb;
+    }
+
+
+
+
+
+    .wechat-screen {
+      z-index: 130;
+      transform: none;
+      transition: none;
+      background: #101010;
+      color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .wechat-page {
+      height: 100%;
+      overflow: hidden;
+      background: #101010;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wechat-header {
+      flex: 0 0 118px;
+      background: #242424;
+      color: #f4f4f4;
+    }
+
+    .wechat-status {
+      height: 54px;
+      padding: 12px 22px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      font-size: 17px;
+      line-height: 22px;
+      font-weight: 800;
+    }
+
+    .wechat-island {
+      width: 156px;
+      height: 38px;
+      margin-top: -2px;
+      border-radius: 999px;
+      background: #000;
+      color: #21f06b;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding-left: 22px;
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .wechat-signal {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .wechat-nav {
+      height: 64px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: 84px 1fr 58px;
+      align-items: center;
+      column-gap: 6px;
+    }
+
+    .wechat-back {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #dcdcdc;
+    }
+
+    .wechat-back-arrow {
+      width: 28px;
+      height: 42px;
+      font-size: 38px;
+      line-height: 38px;
+      color: #dcdcdc;
+    }
+
+    .wechat-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: #3a3a3a;
+      color: #d8d8d8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .wechat-title {
+      color: #dedede;
+      text-align: center;
+      font-size: 18px;
+      line-height: 24px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .wechat-more {
+      color: #d8d8d8;
+      text-align: right;
+      font-size: 30px;
+      line-height: 1;
+      letter-spacing: 2px;
+    }
+
+    .wechat-chat {
+      flex: 1 1 auto;
+      min-height: 0;
+      position: relative;
+      padding: 0 12px 12px;
+      overflow: hidden;
+      background: #101010;
+    }
+
+    .wechat-top-photo {
+      width: 132px;
+      height: 84px;
+      margin: 0 auto;
+      background:
+        radial-gradient(circle at 20% 78%, #f3d573 0 12px, transparent 13px),
+        radial-gradient(circle at 34% 80%, #e9ca61 0 11px, transparent 12px),
+        linear-gradient(120deg, #6d715d, #c4b69b 44%, #3b3f33 45%, #756b55);
+      background-size: cover;
+    }
+
+    .wechat-share-row {
+      position: absolute;
+      top: 172px;
+      right: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .wechat-self-avatar {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      border-radius: 5px;
+      background:
+        radial-gradient(circle at 58% 24%, #d8e6f0 0 9px, transparent 10px),
+        linear-gradient(135deg, #a9d1e8, #2c3345);
+    }
+
+    .wechat-shared-poster {
+      width: 184px;
+      height: 342px;
+      padding: 12px 8px 10px;
+      border-radius: 4px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.2) 0 12%, transparent 13%),
+        radial-gradient(circle at 76% 20%, rgba(255, 255, 255, 0.15) 0 10%, transparent 11%),
+        radial-gradient(circle at 88% 48%, rgba(255, 255, 255, 0.12) 0 12%, transparent 13%),
+        linear-gradient(180deg, #8a74ff 0%, #a383ff 48%, #8a71f4 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.24);
+    }
+
+    .wechat-mini-card {
+      border-radius: 13px;
+      background:
+        radial-gradient(circle at 18% 84%, rgba(177, 234, 255, 0.5), transparent 32%),
+        radial-gradient(circle at 92% 78%, rgba(231, 215, 255, 0.52), transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(242, 248, 255, 0.98));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.68);
+    }
+
+    .wechat-mini-hero {
+      flex: 1 1 auto;
+      min-height: 126px;
+      padding: 10px 9px 8px;
+    }
+
+    .wechat-mini-ribbon {
+      margin: 0 auto 9px;
+      color: #4214b9;
+      text-align: center;
+      font-size: 8px;
+      line-height: 12px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .wechat-mini-title {
+      color: #070707;
+      font-family: Impact, "Arial Black", "PingFang SC", sans-serif;
+      font-size: 20px;
+      line-height: 0.92;
+      font-weight: 950;
+      letter-spacing: 0;
+      text-align: center;
+      transform: scaleX(1.08);
+      white-space: nowrap;
+    }
+
+    .wechat-mini-blank {
+      height: 68px;
+    }
+
+    .wechat-mini-info {
+      flex: 0 0 98px;
+      padding: 9px;
+    }
+
+    .wechat-mini-desc {
+      margin: 0 0 6px;
+      color: #333;
+      font-size: 7px;
+      line-height: 11px;
+      font-weight: 520;
+    }
+
+    .wechat-mini-core {
+      margin: 0 0 6px;
+      color: #111;
+      font-family: Impact, "Arial Black", "PingFang SC", sans-serif;
+      font-size: 13px;
+      line-height: 15px;
+      font-weight: 950;
+    }
+
+    .wechat-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+
+    .wechat-mini-stat {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(232,220,255,0.86));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .wechat-mini-stat strong {
+      color: #111;
+      font-size: 9px;
+      line-height: 11px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .wechat-mini-stat span {
+      margin-top: 2px;
+      color: #57149b;
+      font-size: 5.8px;
+      line-height: 7px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .wechat-mini-partner {
+      flex: 0 0 70px;
+      padding: 8px 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    .wechat-mini-partner h3 {
+      margin: 0;
+      color: #111;
+      font-family: Impact, "Arial Black", "PingFang SC", sans-serif;
+      font-size: 11px;
+      line-height: 12px;
+      font-weight: 950;
+      max-width: 104px;
+    }
+
+    .wechat-mini-partner h3 span {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .wechat-mini-partner h3 .mini-invite {
+      margin-top: 2px;
+      color: #ff6d01;
+      font-family: "PingFang SC", sans-serif;
+      font-size: 5.8px;
+      line-height: 8px;
+      font-weight: 850;
+    }
+
+    .wechat-mini-qr {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      border-radius: 3px;
+      background: #fff;
+      object-fit: cover;
+    }
+
+    .wechat-friend-row {
+      position: absolute;
+      left: 12px;
+      bottom: 22px;
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      column-gap: 10px;
+      align-items: start;
+    }
+
+    .wechat-friend-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 5px;
+      background:
+        radial-gradient(circle at 50% 58%, #fff 0 20px, transparent 21px),
+        radial-gradient(circle at 34% 34%, #9b5b24 0 14px, transparent 15px),
+        linear-gradient(135deg, #eed0aa, #6d3c16);
+    }
+
+    .wechat-friend-name {
+      margin-bottom: 4px;
+      color: #8e8e8e;
+      font-size: 15px;
+      line-height: 18px;
+    }
+
+    .wechat-cat-photo {
+      width: 142px;
+      height: 132px;
+      background:
+        radial-gradient(circle at 50% 46%, #fff 0 46px, transparent 47px),
+        radial-gradient(circle at 42% 42%, #111 0 4px, transparent 5px),
+        radial-gradient(circle at 60% 42%, #111 0 4px, transparent 5px),
+        linear-gradient(140deg, #243966, #d2b092);
+    }
+
+    .wechat-inputbar {
+      flex: 0 0 72px;
+      padding: 10px 10px 12px;
+      background: #2b2b2b;
+      display: grid;
+      grid-template-columns: 42px 1fr 34px 42px 42px;
+      gap: 9px;
+      align-items: center;
+    }
+
+    .wechat-round-icon {
+      width: 34px;
+      height: 34px;
+      border: 2px solid #d5d5d5;
+      border-radius: 999px;
+      color: #d5d5d5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .wechat-input {
+      height: 44px;
+      border-radius: 4px;
+      background: #292929;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+
+    .wechat-image-page {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #101010;
+    }
+
+    .wechat-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .wechat-image-back {
+      position: absolute;
+      top: 54px;
+      left: 0;
+      width: 96px;
+      height: 78px;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+
+    #guest-detail-user-marker {
+      background: #fff;
+      color: #ff6d01;
+      border-color: #fff;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.22);
+      z-index: 4;
+    }
+
+    #guest-detail-user-marker.dragging {
+      cursor: grabbing;
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    .wechat-poster-hotspot {
+      position: absolute;
+      top: 28.8%;
+      left: 40.8%;
+      width: 42.2%;
+      height: 40.4%;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+
+    #guest-detail-screen .guest-save-album {
+      width: 26px;
+      height: 26px;
+      flex: 0 0 26px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #ff6d01;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #guest-detail-screen .guest-save-album svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    #guest-detail-screen .guest-save-album .save-check {
+      display: none;
+    }
+
+    #guest-detail-screen .guest-save-album.active .save-plus {
+      display: none;
+    }
+
+    #guest-detail-screen .guest-save-album.active .save-check {
+      display: block;
+    }
+
+    #guest-detail-screen .guest-want-button {
+      position: absolute;
+      top: 16px;
+      right: 14px;
+      width: 30px;
+      min-height: 32px;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #8f8f8f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0;
+      font-size: 10px;
+      line-height: 12px;
+      font-weight: 650;
+      letter-spacing: 0;
+      z-index: 2;
+    }
+
+    #guest-detail-screen .guest-want-button svg {
+      width: 19px;
+      height: 18px;
+      color: #8f8f8f;
+      display: block;
+    }
+
+    #guest-detail-screen .guest-want-button .want-heart-fill {
+      display: none;
+    }
+
+    #guest-detail-screen .guest-want-button.active {
+      color: #ff3b30;
+      min-height: 20px;
+    }
+
+    #guest-detail-screen .guest-want-button.active svg {
+      color: #ff3b30;
+    }
+
+    #guest-detail-screen .guest-want-button.active span,
+    #guest-detail-screen .guest-want-button.active .want-heart-outline,
+    #guest-detail-screen .guest-want-button.active .want-plus {
+      display: none;
+    }
+
+    #guest-detail-screen .guest-want-button.active .want-heart-fill {
+      display: block;
+    }
+
+    #guest-detail-screen .restaurant-head h2 {
+      max-width: calc(100% - 44px);
+      padding-right: 4px;
+    }
+
+    #guest-detail-screen .restaurant-meta {
+      padding-right: 0;
+    }
+
+    #guest-detail-screen .been-row,
+    #guest-detail-screen .detail-divider {
+      display: none;
+    }
+
+    #guest-detail-screen .review-copy .review-date {
+      justify-content: flex-start;
+    }
+
+    #guest-detail-screen .review-copy .review-date strong {
+      color: #111827;
+      font-weight: 750;
+    }
+
+    #guest-detail-screen .guest-add-selected {
+      width: 100%;
+      background: #ff6d01;
+      color: #fff;
+    }
+
+    #guest-detail-screen .guest-subscribe-mask {
+      position: absolute;
+      inset: 0;
+      z-index: 150;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      background: rgba(0, 0, 0, 0.42);
+    }
+
+    #guest-detail-screen .guest-subscribe-mask.active {
+      display: flex;
+    }
+
+    #guest-detail-screen .guest-subscribe-dialog {
+      width: 100%;
+      max-width: 264px;
+      padding: 27px 20px 20px;
+      border-radius: 18px;
+      background: #513128;
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+    }
+
+    #guest-detail-screen .guest-subscribe-dialog h2 {
+      margin: 0 0 11px;
+      font-size: 18.4px;
+      line-height: 23px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    #guest-detail-screen .guest-subscribe-dialog p {
+      margin: 0 0 22px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 11.5px;
+      line-height: 16px;
+      font-weight: 560;
+      white-space: normal;
+    }
+
+    #guest-detail-screen .guest-subscribe-dialog.cancel p {
+      white-space: normal;
+    }
+
+    #guest-detail-screen .guest-subscribe-ok,
+    #guest-detail-screen .guest-subscribe-continue,
+    #guest-detail-screen .guest-subscribe-cancel {
+      width: 100%;
+      height: 38px;
+      border: 0;
+      border-radius: 999px;
+      background: #ffd2b4;
+      color: #4d3129;
+      font-size: 14.5px;
+      line-height: 19px;
+      font-weight: 800;
+    }
+
+    #guest-detail-screen .guest-subscribe-dialog.cancel {
+      max-width: 264px;
+    }
+
+    #guest-detail-screen .guest-subscribe-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    #guest-detail-screen .guest-subscribe-continue {
+      background: transparent;
+      color: #ffe0c7;
+      border: 1px solid rgba(255, 224, 199, 0.8);
+    }
+
+    #guest-detail-screen .guest-album-sheet-mask {
+      position: absolute;
+      inset: 0;
+      z-index: 145;
+      display: none;
+      align-items: flex-end;
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    #guest-detail-screen .guest-album-sheet-mask.active {
+      display: flex;
+    }
+
+    #guest-detail-screen .guest-album-sheet {
+      width: 100%;
+      max-height: 69%;
+      padding: 12px 18px calc(18px + env(safe-area-inset-bottom));
+      border-radius: 24px 24px 0 0;
+      background: #fff;
+      color: #111;
+      overflow: hidden;
+      box-shadow: 0 -16px 42px rgba(0, 0, 0, 0.32);
+    }
+
+    #guest-detail-screen .guest-album-handle {
+      width: 42px;
+      height: 5px;
+      margin: 0 auto 16px;
+      border-radius: 999px;
+      background: rgba(17, 24, 39, 0.12);
+    }
+
+    #guest-detail-screen .guest-album-sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 13px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f1f3;
+      font-size: 18px;
+      font-weight: 850;
+    }
+
+    #guest-detail-screen .guest-album-multi {
+      color: #666;
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    #guest-detail-screen .guest-album-sheet.is-multi .guest-album-multi {
+      color: #ff6d01;
+    }
+
+    #guest-detail-screen .guest-album-list {
+      max-height: 390px;
+      overflow-y: auto;
+      padding-bottom: 76px;
+    }
+
+    #guest-detail-screen .guest-album-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    #guest-detail-screen .guest-album-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 56px 1fr 32px;
+      align-items: center;
+      gap: 14px;
+      min-height: 70px;
+      border: 0;
+      padding: 7px 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      width: 100%;
+    }
+
+    #guest-detail-screen .guest-album-thumb {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #fbefe0, #88c0d7);
+      object-fit: cover;
+    }
+
+    #guest-detail-screen .guest-album-row.new .guest-album-thumb {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f3f4f6;
+      color: #9ca3af;
+      font-size: 36px;
+      font-weight: 300;
+    }
+
+    #guest-detail-screen .guest-album-name {
+      display: block;
+      color: #111827;
+      font-size: 17px;
+      line-height: 22px;
+      font-weight: 760;
+    }
+
+    #guest-detail-screen .guest-album-count {
+      display: block;
+      margin-top: 4px;
+      color: #9c9ca3;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 560;
+    }
+
+    #guest-detail-screen .guest-album-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 2px solid #d1d5db;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    #guest-detail-screen .guest-album-sheet.is-multi .guest-album-check {
+      display: flex;
+    }
+
+    #guest-detail-screen .guest-album-row.selected .guest-album-check {
+      background: #ff6d01;
+      border-color: #ff6d01;
+    }
+
+    #guest-detail-screen .guest-album-row.selected .guest-album-check::before {
+      content: "✓";
+    }
+
+    #guest-detail-screen .guest-album-add {
+      position: absolute;
+      left: 50%;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      min-width: 132px;
+      height: 48px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 30px;
+      font-size: 17px;
+      font-weight: 850;
+      background: #ff6d01;
+      box-shadow: 0 8px 24px rgba(255, 109, 1, 0.28);
+    }
+
+    #guest-detail-screen .guest-album-sheet.is-multi.has-choice .guest-album-add {
+      display: flex;
+    }
+
+    #guest-detail-screen .guest-added-toast {
+      position: absolute;
+      top: 76px;
+      left: 50%;
+      z-index: 170;
+      transform: translate(-50%, -10px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(17, 17, 17, 0.9);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 780;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    #guest-detail-screen .guest-added-toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+
+    .share-image-page {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f6f6f6;
+    }
+
+    .share-reference-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .share-image-hotspot {
+      position: absolute;
+      z-index: 3;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .share-image-back {
+      top: 4.6%;
+      left: 2.2%;
+      width: 12%;
+      height: 8%;
+    }
+
+    .share-image-wechat {
+      left: 21%;
+      bottom: 1.8%;
+      width: 17%;
+      height: 11%;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="phone" id="phone">
+    <section class="screen active" id="profile-screen" aria-label="我的页">
+      <div class="status-bar">
+        <span>16:21</span>
+        <span class="status-icons" aria-hidden="true">
+          <span class="signal"><i></i><i></i><i></i><i></i></span>
+          <span class="wifi"></span>
+          <span class="battery"></span>
+        </span>
+      </div>
+
+      <div class="sticky-title" id="sticky-title">晕碳中</div>
+
+      <div class="profile-tools" aria-hidden="true">
+        <span>♡</span>
+        <span>⚙</span>
+      </div>
+
+      <main class="scroll profile-scroll" id="profile-scroll">
+        <header class="profile-hero">
+          <div class="profile-main">
+            <div class="identity">
+              <div class="avatar">
+                <img src="https://modao.cc/agent-py/media/user_assets/2026-07-04/55565e895bd04edd8d184d994a484b34.JPG" alt="用户头像" />
+              </div>
+              <div class="name-block">
+                <h1>晕碳中</h1>
+                <div class="stats">
+                  <span><strong>1</strong> 粉丝</span>
+                  <span><strong>0</strong> 关注</span>
+                  <span><strong>29</strong> 获赞</span>
+                </div>
+              </div>
+            </div>
+            <button class="home-link tap" type="button" data-toast="个人主页">个人主页 ›</button>
+          </div>
+
+          <div class="badges">
+            <span class="badge level">👑 Lv5</span>
+            <span class="badge medal">🏅 33枚</span>
+            <span class="badge vip">♛ 黑金会员</span>
+          </div>
+        </header>
+
+        <section class="quick-actions" aria-label="快捷入口">
+          <button class="quick-card checkin tap" type="button" data-toast="打卡">
+            <h2>打卡</h2>
+            <span class="quick-meta">
+              <svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#f98b04" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.1 14.5-4-4 1.4-1.4 2.6 2.6 5.8-5.8 1.4 1.4-7.2 7.2Z"/></svg>
+              3个待打卡
+            </span>
+          </button>
+
+          <button class="quick-card footprint tap" type="button" data-toast="我的足迹">
+            <h2>我的足迹</h2>
+            <span class="quick-meta">
+              <svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fa0606" d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.7A2.7 2.7 0 1 1 12 6.3a2.7 2.7 0 0 1 0 5.4Z"/></svg>
+              一键点亮足迹
+            </span>
+          </button>
+
+          <button class="quick-card album-entry tap" type="button" id="open-album" aria-label="进入心选专辑列表页">
+            <span class="quick-new-bubble">+1</span>
+            <h2>心选专辑<br /></h2>
+            <span class="quick-meta">
+              <svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="#f70271" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20.4C7.1 17.8 4 14.4 4 10.3A4.3 4.3 0 0 1 8.3 6c1.8 0 3 .9 3.7 2 .7-1.1 1.9-2 3.7-2a4.3 4.3 0 0 1 4.3 4.3c0 4.1-3.1 7.5-8 10.1Z"/></svg>
+              累计创建10张<br />
+            </span>
+          </button>
+        </section>
+
+        <section class="profile-section">
+          <div class="panel reviews-panel">
+            <button class="section-head tap" type="button" data-toast="全部评价">
+              <h3>评价 (60)</h3>
+              <span>›</span>
+            </button>
+            <div class="review-content">
+              <div class="review-stats">
+                <div class="review-stat">浏览 <strong>2.3</strong> 万次<em>+128</em></div>
+                <div class="review-stat">帮助 <strong>6276</strong> 人<em>+58</em></div>
+              </div>
+              <div class="review-thumbs no-scrollbar" aria-label="评价图片">
+                <div class="review-thumb">
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-04/7f669b78e8a844e6a3f15453ac003e3f.jpg" alt="美食评价图 1" />
+                  <span class="rating-chip">😍 很棒</span>
+                </div>
+                <div class="review-thumb">
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-04/67a4425954174db788406c81bc8d869a.jpg" alt="餐厅环境图" />
+                  <span class="rating-chip">😍 很棒</span>
+                </div>
+                <div class="review-thumb">
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-04/7fc908a40d5e4914be244544a46f2074.jpg" alt="氛围图片" />
+                  <span class="rating-chip">🙂 还可以</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="profile-section">
+          <div class="panel grid-panel">
+            <button class="menu-item tap" type="button" data-toast="订单"><span class="menu-icon-bg orange">▤</span><span>订单</span></button>
+            <button class="menu-item tap" type="button" data-toast="收藏"><span class="menu-icon-bg yellow">★</span><span>收藏</span></button>
+            <button class="menu-item tap" type="button" data-toast="待评价"><span class="menu-icon-bg orange">☵</span><span>待评价</span><span class="count-badge">1</span></button>
+            <button class="menu-item tap" type="button" data-toast="最近浏览"><span class="menu-icon-bg yellow">↺</span><span>最近浏览</span></button>
+            <button class="menu-item tap" type="button" data-toast="卡券"><span class="menu-icon-plain">▱</span><span>卡券</span><span class="red-dot"></span></button>
+            <button class="menu-item tap" type="button" data-toast="钱包"><span class="menu-icon-plain">▣</span><span>钱包</span></button>
+            <button class="menu-item tap" type="button" data-toast="草稿箱"><span class="menu-icon-plain">□</span><span>草稿箱</span></button>
+            <button class="menu-item tap" type="button" data-toast="地点标记"><span class="menu-icon-plain">⌖</span><span>地点标记</span></button>
+          </div>
+          <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        </section>
+
+        <section class="profile-section creator-section">
+          <div class="panel creator-panel">
+            <button class="section-head tap" type="button" data-toast="笔记达人中心">
+              <h3>笔记达人中心</h3>
+              <span>›</span>
+            </button>
+            <div class="creator-grid">
+              <button class="creator-item tap" type="button" data-toast="数据中心"><b>⌁</b><span>数据中心</span></button>
+              <button class="creator-item tap" type="button" data-toast="0元探店"><b>⌕</b><span>0元探店</span></button>
+              <button class="creator-item tap" type="button" data-toast="点星"><b>✧</b><span>点星</span></button>
+              <button class="creator-item tap" type="button" data-toast="真探官"><b>♜</b><span>真探官</span></button>
+            </div>
+          </div>
+        </section>
+
+        <section class="mini-promos">
+          <button class="promo-card tap" type="button" data-toast="免费试">
+            <span><span class="promo-title">免费试</span><span class="promo-sub">0元吃大餐</span></span>
+            <span class="promo-img"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-04/0bac632b48154efaa5c1c7426d561370.jpg" alt="免费试活动" /></span>
+          </button>
+          <button class="promo-card tap" type="button" data-toast="大众评审">
+            <span><span class="promo-title">大众评审</span><span class="promo-sub">快来评评理</span></span>
+            <span class="promo-img"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-04/5d6fff95ad1d4742b8f63951c5ebab48.jpg" alt="大众评审" /></span>
+          </button>
+        </section>
+      </main>
+
+      <nav class="bottom-tab" aria-label="底部导航">
+        <button class="tab-item tap" type="button" data-toast="首页"><span class="tab-icon">⌂</span><span>首页</span></button>
+        <button class="tab-item tap" type="button" data-toast="地图"><span class="tab-icon">⌖</span><span>地图</span></button>
+        <span class="plus-tab"><button class="plus-button tap" type="button" data-toast="发布">+</button></span>
+        <button class="tab-item tap" type="button" data-toast="消息"><span class="tab-icon">◌</span><span>消息</span><span class="count-badge">3</span></button>
+        <button class="tab-item tab-active tap" type="button"><span class="tab-icon">●</span><span>我的</span></button>
+        <span class="home-indicator" aria-hidden="true"></span>
+      </nav>
+    </section>
+
+    <section class="screen album-screen" id="album-screen" aria-label="心选专辑列表页">
+      <div class="status-bar">
+        <span>09:41</span>
+        <span class="status-icons" aria-hidden="true">
+          <span class="signal"><i></i><i></i><i></i><i></i></span>
+          <span class="wifi"></span>
+          <span class="battery"></span>
+        </span>
+      </div>
+
+      <header class="album-header">
+        <div class="album-topline">
+          <button class="back-button tap" type="button" id="back-profile" aria-label="返回我的页">‹</button>
+          <h1 class="album-title">我的心选专辑</h1>
+        </div>
+        <div class="category-tabs no-scrollbar" role="tablist" aria-label="心选专辑分类">
+          <button class="category-tab active" type="button">美食</button>
+          <button class="category-tab" type="button">休闲娱乐</button>
+          <button class="category-tab" type="button">丽人</button>
+          <button class="category-tab" type="button">旅行</button>
+          <button class="category-tab" type="button">运动</button>
+        </div>
+      </header>
+
+      <main class="album-list">
+        <div class="album-cards">
+          <article class="album-card tap" id="open-detail" role="button" tabindex="0" aria-label="打开氛围感天花板专辑详情页">
+            <div class="cover"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/144f601a269348ba833cb3079e41f949.jpg" alt="氛围感天花板封面" /></div>
+            <div class="album-info">
+              <h2>氛围感天花板</h2>
+              <div class="album-stats">
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>128</span>
+                <span class="heart"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21S4 16.2 4 9.8A4.8 4.8 0 0 1 8.8 5c1.7 0 2.7.8 3.2 1.5A4 4 0 0 1 15.2 5 4.8 4.8 0 0 1 20 9.8C20 16.2 12 21 12 21Z"/></svg>50</span>
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>70</span>
+              </div>
+              <div class="dish-strip no-scrollbar" tabindex="0" aria-label="氛围感天花板菜品缩略图，可横向滑动">
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/e5ed190a47b74362b16662887dbb4920.jpg" alt="牛排菜品" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/4b1e78aca54549659f169f4932521c6f.jpg" alt="红酒" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/b528a5decf054aa78c2c16a629b25e83.jpg" alt="巧克力甜点" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/7ae546cbd51f46feb1761511eeb4535c.jpg" alt="餐桌装饰" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/287520ae97024015a10ccb9a2634c846.jpg" alt="餐厅氛围" />
+                <span class="merchant-count">10家商户</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="album-card tap">
+            <div class="cover"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/2102651fa8f845a19ffee60b5ccccc3d.jpg" alt="下班小酌 bistro 封面" /></div>
+            <div class="album-info">
+              <h2>下班小酌bistro</h2>
+              <div class="album-stats">
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>86</span>
+                <span class="heart"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21S4 16.2 4 9.8A4.8 4.8 0 0 1 8.8 5c1.7 0 2.7.8 3.2 1.5A4 4 0 0 1 15.2 5 4.8 4.8 0 0 1 20 9.8C20 16.2 12 21 12 21Z"/></svg>32</span>
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>45</span>
+              </div>
+              <div class="dish-strip no-scrollbar" tabindex="0" aria-label="下班小酌 bistro 菜品缩略图，可横向滑动">
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/a66682645a4b439ab70e7c7d2c35e70c.jpg" alt="咖啡" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/602e9fe7734f48c59e48bc9a34fadc6a.jpg" alt="书桌" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/57610434c697441ebc33eb7808973e0b.jpg" alt="绿植" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/6047e73881ca47f5b681e7af2a14ee8c.jpg" alt="咖啡馆外景" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/5a2b67b2b3604222ac3f2484597c4297.jpg" alt="夜间灯光" />
+                <span class="merchant-count">10家商户</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="album-card tap">
+            <div class="cover"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/3e0df6de4cde4f1680bae152a9fb5d51.jpg" alt="一人食不尴尬封面" /></div>
+            <div class="album-info">
+              <h2>一人食不尴尬</h2>
+              <div class="album-stats">
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>215</span>
+                <span class="heart"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21S4 16.2 4 9.8A4.8 4.8 0 0 1 8.8 5c1.7 0 2.7.8 3.2 1.5A4 4 0 0 1 15.2 5 4.8 4.8 0 0 1 20 9.8C20 16.2 12 21 12 21Z"/></svg>98</span>
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>120</span>
+              </div>
+              <div class="dish-strip no-scrollbar" tabindex="0" aria-label="一人食不尴尬菜品缩略图，可横向滑动">
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/591eccf6877843a5acf849f7b08f640a.jpg" alt="果昔" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/b28f5b6e5ab341618726894d806680b0.jpg" alt="能量棒" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/a85c8cb4ba314031a2f0f207326a743e.jpg" alt="瑜伽水杯" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/5faad003708f46b3b7e12c8b1a3b5d4a.jpg" alt="沙拉细节" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/e684464e194047b59368efeda2173da4.jpg" alt="健康碗" />
+                <span class="merchant-count">10家商户</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="album-card tap">
+            <div class="cover"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/ba7f8019d04b4b1d83c9ec16d3b6d783.jpg" alt="闺蜜下午茶封面" /></div>
+            <div class="album-info">
+              <h2>闺蜜下午茶</h2>
+              <div class="album-stats">
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>340</span>
+                <span class="heart"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21S4 16.2 4 9.8A4.8 4.8 0 0 1 8.8 5c1.7 0 2.7.8 3.2 1.5A4 4 0 0 1 15.2 5 4.8 4.8 0 0 1 20 9.8C20 16.2 12 21 12 21Z"/></svg>156</span>
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>89</span>
+              </div>
+              <div class="dish-strip no-scrollbar" tabindex="0" aria-label="闺蜜下午茶菜品缩略图，可横向滑动">
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/c3cda757659041888b02410a071e11ff.jpg" alt="马卡龙" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/eecf2b02f72f495a9ed79f820ac1d972.jpg" alt="花茶壶" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/88a6c4b0aabc4de0bf3992597b972537.jpg" alt="咖啡馆内景" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/9f414bdedc01431189540dcd26ed1.jpg" alt="蛋糕切片" onerror="this.src='https://modao.cc/agent-py/media/generated_images/2026-07-05/9f414bdedc01431191189540dcd26ed1.jpg'" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/8ebc520eff7c46dfabba7999666e40d3.jpg" alt="茶具" />
+                <span class="merchant-count">10家商户</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="album-card tap">
+            <div class="cover"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/68aaaa0e6725486cbe5efc6fbd22acea.jpg" alt="深夜食堂封面" /></div>
+            <div class="album-info">
+              <h2>深夜食堂</h2>
+              <div class="album-stats">
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>560</span>
+                <span class="heart"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21S4 16.2 4 9.8A4.8 4.8 0 0 1 8.8 5c1.7 0 2.7.8 3.2 1.5A4 4 0 0 1 15.2 5 4.8 4.8 0 0 1 20 9.8C20 16.2 12 21 12 21Z"/></svg>210</span>
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>180</span>
+              </div>
+              <div class="dish-strip no-scrollbar" tabindex="0" aria-label="深夜食堂菜品缩略图，可横向滑动">
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/9ee3e11a9a794f29b542eb208acb5f25.jpg" alt="烤串" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/7c0121584aee40dd905e8d4a2c53f2cc.jpg" alt="啤酒" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/75454354607e4e189ccafc9a4cface83.jpg" alt="饺子" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/9d9ecda88f194a13b6fcf5b5122fa3e9.jpg" alt="面馆" />
+                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/0166ca65703043209caf5ab65cbff28b.jpg" alt="夜宵小吃" />
+                <span class="merchant-count">10家商户</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </main>
+
+      <nav class="album-bottom-nav" aria-label="专辑底部导航">
+        <button class="album-nav-item active tap" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M3 11 12 4l9 7v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8Z"/></svg>
+          <span>精选</span>
+        </button>
+        <button class="album-nav-item tap" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="m16 16 4 4"/></svg>
+          <span>发现</span>
+        </button>
+        <button class="album-nav-item tap" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M12 20.4C7.1 17.8 4 14.4 4 10.3A4.3 4.3 0 0 1 8.3 6c1.8 0 3 .9 3.7 2 .7-1.1 1.9-2 3.7-2a4.3 4.3 0 0 1 4.3 4.3c0 4.1-3.1 7.5-8 10.1Z"/></svg>
+          <span>收藏</span>
+        </button>
+        <button class="album-nav-item tap" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 21a7 7 0 0 1 14 0"/></svg>
+          <span>我的</span>
+        </button>
+        <span class="home-indicator" aria-hidden="true"></span>
+      </nav>
+    </section>
+
+    <section class="screen detail-screen" id="detail-screen" aria-label="专辑详情页">
+      <div class="detail-shell" id="detail-shell">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span class="status-icons" aria-hidden="true">
+            <span class="signal"><i></i><i></i><i></i><i></i></span>
+            <span class="wifi"></span>
+            <span class="battery"></span>
+          </span>
+        </div>
+
+        <header class="detail-header">
+          <div class="detail-titlebar">
+            <button class="detail-back" type="button" id="detail-back-list" aria-label="返回心选专辑列表">‹</button>
+            <div class="detail-album-summary">
+              <img class="detail-album-cover" src="https://modao.cc/agent-py/media/generated_images/2026-07-05/144f601a269348ba833cb3079e41f949.jpg" alt="氛围感天花板专辑封面" />
+              <div class="detail-album-copy">
+                <div class="detail-album-title-row">
+                  <h1>氛围感天花板</h1>
+                  <div class="detail-title-actions">
+                    <button class="detail-share-button" type="button" id="detail-share-trigger" aria-label="分享专辑">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M9 5H7.5A3.5 3.5 0 0 0 4 8.5v8A3.5 3.5 0 0 0 7.5 20h8a3.5 3.5 0 0 0 3.5-3.5V15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                        <path d="M13 4h7v7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M20 4 10.5 13.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                      </svg>
+                    </button>
+                    <button class="detail-manage-button" type="button" id="detail-manage-trigger" aria-label="专辑管理">...</button>
+                  </div>
+                </div>
+                <p>氛围感拉满！光影美学+浪漫细节，每一家都值得为约会收藏。</p>
+                <div class="detail-album-meta">6家商户，更新于2026.07.01</div>
+              </div>
+            </div>
+          </div>
+          <div class="detail-manage-menu" id="detail-manage-menu" aria-label="专辑管理菜单">
+            <button type="button" data-toast="编辑专辑信息">编辑专辑信息</button>
+            <button type="button" data-toast="更换专辑壁纸">更换专辑壁纸</button>
+          </div>
+
+          <div class="detail-map-titlebar">
+            <button class="detail-icon-button detail-map-back" type="button" aria-label="返回列表模式">‹</button>
+            <h1>氛围感天花板专辑</h1>
+            <button class="detail-icon-button" type="button" data-toast="更多操作" aria-label="更多操作">…</button>
+          </div>
+        </header>
+
+        <nav class="detail-nav" aria-label="详情页筛选">
+          <button class="detail-filter" type="button" id="price-filter-trigger">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h10M18 7h2M4 12h3M11 12h9M4 17h8M16 17h4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" />
+              <circle cx="16" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2.1" />
+              <circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2.1" />
+              <circle cx="14" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2.1" />
+            </svg>
+            <span id="price-filter-label">筛选</span>
+          </button>
+          <button class="detail-filter" type="button" id="detail-sort-trigger">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 7h9M5 12h7M5 17h5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" />
+              <path d="M17 6v11m0 0 3-3m-3 3-3-3" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>排序</span>
+          </button>
+          <button class="detail-filter" type="button" id="detail-edit-trigger">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 7h9M5 12h6M5 17h6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" />
+              <path d="m14 15 2.2 2.2L20 12.8" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>编辑</span>
+          </button>
+          <button class="detail-filter" type="button" data-toast="添加">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2.1" />
+              <path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" />
+            </svg>
+            <span>添加</span>
+          </button>
+          <button class="detail-map-toggle" type="button" id="detail-map-toggle" aria-label="地图模式">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 18.4 9.4 20l5.2-1.6L20 20V9.7l-5.4-1.6-5.2 1.6L4 8.1v10.3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+              <path d="M12 4.2a4.2 4.2 0 0 0-4.2 4.2c0 3.4 4.2 7.7 4.2 7.7s4.2-4.3 4.2-7.7A4.2 4.2 0 0 0 12 4.2Z" fill="#fff" stroke="currentColor" stroke-width="2" />
+              <circle cx="12" cy="8.4" r="1.25" fill="currentColor" />
+            </svg>
+            <span class="detail-map-toggle-label">地图模式</span>
+          </button>
+          <div class="detail-edit-bar" id="detail-edit-bar" aria-label="编辑专辑商户">
+            <button class="detail-edit-select" type="button" id="detail-select-all">
+              <span class="select-box" id="detail-select-all-box" aria-hidden="true">✓</span>
+              <span>全选</span>
+            </button>
+            <button class="detail-edit-done" type="button" id="detail-edit-done">完成</button>
+          </div>
+        </nav>
+
+        <section class="sort-panel" id="sort-panel" aria-label="排序选项">
+          <div class="sort-options">
+            <button class="sort-option" type="button" data-sort="distance">距离优先</button>
+            <button class="sort-option" type="button" data-sort="popular">人气优先</button>
+            <button class="sort-option" type="button" data-sort="rating">好评优先</button>
+            <button class="sort-option" type="button" data-sort="taste">口味优先</button>
+            <button class="sort-option" type="button" data-sort="environment">环境优先</button>
+            <button class="sort-option" type="button" data-sort="service">服务优先</button>
+            <button class="sort-option" type="button" data-sort="low-price">低价优先</button>
+            <button class="sort-option" type="button" data-sort="high-price">高价优先</button>
+            <button class="sort-option" type="button" data-sort="join-new">加入时间从近至远</button>
+            <button class="sort-option" type="button" data-sort="join-old">加入时间从远至近</button>
+          </div>
+          <div class="filter-footer">
+            <button class="filter-reset" id="sort-reset" type="button">重置</button>
+            <button class="price-confirm" id="sort-confirm" type="button">确定</button>
+          </div>
+        </section>
+
+        <section class="price-filter-panel" id="price-filter-panel" aria-label="筛选框">
+          <div class="filter-body">
+            <aside class="filter-sidebar" aria-label="筛选分类">
+              <button class="filter-side-tab active" type="button" data-filter-section="price-section">价格</button>
+              <button class="filter-side-tab" type="button" data-filter-section="promo-section">优惠</button>
+              <button class="filter-side-tab" type="button" data-filter-section="type-section">餐厅类型</button>
+              <button class="filter-side-tab" type="button" data-filter-section="quality-section">餐厅品质</button>
+              <button class="filter-side-tab" type="button" data-filter-section="time-section">收录时间</button>
+              <button class="filter-side-tab" type="button" data-filter-section="queue-section">排队桌数</button>
+              <button class="filter-side-tab" type="button" data-filter-section="scene-section">用餐场景</button>
+              <button class="filter-side-tab" type="button" data-filter-section="feature-section">设施&特色</button>
+              <button class="filter-side-tab" type="button" data-filter-section="service-section">服务</button>
+            </aside>
+            <div class="filter-main">
+              <section class="filter-section" id="price-section">
+                <h2 class="price-filter-title">价格</h2>
+                <div class="price-chip-grid">
+                  <button class="price-chip" type="button" data-min="0" data-max="50">50以下</button>
+                  <button class="price-chip" type="button" data-min="50" data-max="100">50-100</button>
+                  <button class="price-chip" type="button" data-min="100" data-max="150">100-150</button>
+                  <button class="price-chip" type="button" data-min="150" data-max="200">150-200</button>
+                  <button class="price-chip" type="button" data-min="200" data-max="300">200-300</button>
+                  <button class="price-chip" type="button" data-min="300" data-max="400">300以上</button>
+                </div>
+                <div class="price-range-box">
+                  <div class="price-range-labels"><span>¥0</span><span>¥400+</span></div>
+                  <div class="price-range" id="price-range">
+                    <div class="price-track"></div>
+                    <div class="price-track-active" id="price-track-active"></div>
+                    <button class="price-handle" id="price-min-handle" type="button" aria-label="最低价">¥0</button>
+                    <button class="price-handle" id="price-max-handle" type="button" aria-label="最高价">¥400</button>
+                  </div>
+                </div>
+              </section>
+              <section class="filter-section" id="promo-section">
+                <h2>优惠</h2>
+                <div class="filter-chip-grid">
+                  <button class="filter-chip" type="button">神券商家</button>
+                  <button class="filter-chip" type="button">套餐/代金券</button>
+                  <button class="filter-chip" type="button">买单立减</button>
+                  <button class="filter-chip" type="button">促销</button>
+                  <button class="filter-chip" type="button">单人餐</button>
+                  <button class="filter-chip" type="button">双人餐</button>
+                  <button class="filter-chip" type="button">3~4人餐</button>
+                  <button class="filter-chip" type="button">5~10人餐</button>
+                </div>
+              </section>
+              <section class="filter-section" id="type-section">
+                <h2>餐厅类型</h2>
+                <div class="filter-chip-grid">
+                  <button class="filter-chip" type="button">轻餐</button>
+                  <button class="filter-chip" type="button">正餐</button>
+                  <button class="filter-chip" type="button">快餐</button>
+                  <button class="filter-chip" type="button">咖啡</button>
+                  <button class="filter-chip" type="button">酒吧</button>
+                  <button class="filter-chip" type="button">甜品</button>
+                </div>
+              </section>
+              <section class="filter-section" id="quality-section">
+                <h2>餐厅品质</h2>
+                <div class="filter-chip-grid">
+                  <button class="filter-chip" type="button">高分好评</button>
+                  <button class="filter-chip" type="button">朋友去过</button>
+                  <button class="filter-chip" type="button">榜单餐厅</button>
+                </div>
+              </section>
+              <section class="filter-section" id="time-section">
+                <h2>收录时间</h2>
+                <div class="filter-chip-grid">
+                  <button class="filter-chip" type="button">最近7天</button>
+                  <button class="filter-chip" type="button">最近30天</button>
+                  <button class="filter-chip" type="button">半年内</button>
+                </div>
+              </section>
+              <section class="filter-section" id="queue-section">
+                <h2>排队桌数</h2>
+                <div class="filter-chip-grid">
+                  <button class="filter-chip" type="button">免排队</button>
+                  <button class="filter-chip" type="button">少于5桌</button>
+                  <button class="filter-chip" type="button">可预约</button>
+                </div>
+              </section>
+              <section class="filter-section" id="scene-section">
+                <h2>用餐场景</h2>
+                <div class="filter-chip-grid">
+                  <button class="filter-chip" type="button">约会</button>
+                  <button class="filter-chip" type="button">朋友聚餐</button>
+                  <button class="filter-chip" type="button">纪念日</button>
+                  <button class="filter-chip" type="button">商务宴请</button>
+                </div>
+              </section>
+              <section class="filter-section" id="feature-section">
+                <h2>设施&特色</h2>
+                <div class="filter-chip-grid">
+                  <button class="filter-chip" type="button">景观位</button>
+                  <button class="filter-chip" type="button">包厢</button>
+                  <button class="filter-chip" type="button">露台</button>
+                  <button class="filter-chip" type="button">宠物友好</button>
+                </div>
+              </section>
+              <section class="filter-section" id="service-section">
+                <h2>服务</h2>
+                <div class="filter-chip-grid">
+                  <button class="filter-chip" type="button">可预订</button>
+                  <button class="filter-chip" type="button">停车方便</button>
+                  <button class="filter-chip" type="button">适合带娃</button>
+                </div>
+              </section>
+            </div>
+          </div>
+          <div class="filter-footer">
+            <button class="filter-reset" id="filter-reset" type="button">重置</button>
+            <button class="price-confirm" id="price-confirm" type="button">确定</button>
+          </div>
+        </section>
+
+        <div class="detail-map" id="detail-map">
+          <div class="map-bg" id="detail-map-bg">
+            <img src="assets/shanghai-amap-style-map.jpg" alt="高德地图风格上海市地图" />
+            <div class="map-grid-overlay" style="display: none;"></div>
+            <div class="map-road-overlay" style="display: none;"></div>
+          </div>
+          <div class="walk-radius" id="detail-walk-radius" aria-label="步行10分钟内可达范围">
+            <span class="walk-radius-label" id="detail-walk-label">步行10分钟内可达</span>
+            <button class="walk-radius-handle" id="detail-walk-handle" type="button" aria-label="调整步行可达范围"></button>
+          </div>
+          <button class="detail-marker star-marker" type="button" data-merchant-marker="0" style="top: 280px; left: 180px;" aria-label="野火Bistro">★</button>
+          <button class="detail-marker star-marker" type="button" data-merchant-marker="1" style="top: 350px; left: 120px;" aria-label="焰遇烧肉">★</button>
+          <button class="detail-marker star-marker" type="button" data-merchant-marker="2" style="top: 420px; left: 250px;" aria-label="澜亭粤色">★</button>
+          <button class="detail-marker star-marker" type="button" data-merchant-marker="3" style="top: 238px; left: 96px;" aria-label="云岸露台">★</button>
+          <button class="detail-marker star-marker" type="button" data-merchant-marker="4" style="top: 256px; left: 292px;" aria-label="月光小馆">★</button>
+          <button class="detail-marker star-marker" type="button" data-merchant-marker="5" style="top: 388px; left: 210px;" aria-label="浦江夜宴">★</button>
+          <button class="detail-marker" type="button" id="detail-user-marker" style="top: 334px; left: 186px;" aria-label="当前位置">
+            <img class="user-marker" src="https://modao.cc/agent-py/media/generated_images/2026-07-08/bf2982a2629544e790394e23b1440757.jpg" alt="当前位置头像标记" />
+          </button>
+          <div id="detail-ripple-container"></div>
+        </div>
+
+        <div class="detail-popup" id="detail-popup">
+          <div id="detail-popup-content"></div>
+          <button class="detail-popup-close" type="button" id="detail-popup-close" aria-label="关闭商户弹窗">×</button>
+        </div>
+
+        <main class="detail-content" id="detail-content">
+          <article class="restaurant-card tap" data-merchant-id="0">
+            <div class="restaurant-head">
+              <h2>野火Bistro</h2>
+            </div>
+            <div class="restaurant-meta">
+              <span class="restaurant-rating-left"><span class="stars" aria-label="4.5星"><span>★</span><span>★</span><span>★</span><span>★</span><span class="gray">★</span></span><span class="rating-score">4.5</span><span class="review-count">500条评价</span></span>
+              <strong>¥200/人</strong>
+            </div>
+            <div class="restaurant-category-line"><span>西餐</span><span>新天地</span><span class="rank-tag">静安区特色菜环境榜第2名</span></div>
+            <div class="restaurant-tags"><span>景观位</span><span>可预定</span><span>无烟区</span></div>
+            <div class="dish-grid">
+              <div class="detail-dish"><img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop" alt="牛油果沙拉" /><span class="dish-label">牛油果沙拉</span></div>
+              <div class="detail-dish"><img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=200&fit=crop" alt="烤南瓜浓汤" /><span class="dish-label">烤南瓜浓汤</span></div>
+              <div class="detail-dish"><img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&h=200&fit=crop" alt="安格斯牛排" /><span class="dish-label">安格斯牛排</span></div>
+            </div>
+            <div class="recommend-row"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-07/923143458e3a43e2b32eab60c41f3fff.jpg" alt="小雅头像" /><span>由小雅推荐</span></div>
+            <div class="review-copy">
+              <div class="review-date"><span>2026.06.05</span><strong>打卡过，4.5星</strong></div>
+              <p>“他家的牛油果沙拉绝了，口感层次非常丰富，牛油果配上秘制酱汁真的是天花板。”</p>
+            </div>
+            <div class="detail-divider"></div>
+            <div class="been-row">
+              <div class="been-friends">
+                <span>3位朋友去过</span>
+                <span class="friend-stack">
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/721e9131bfc74718add0e404f0aa055f.jpg" alt="朋友 1" />
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/075389cc85f54aa0b3a71274942c40b5.jpg" alt="朋友 2" />
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/0696c03d6d84430c99f0f1391cb68589.jpg" alt="朋友 3" />
+                </span>
+              </div>
+              <span>♙</span>
+            </div>
+          </article>
+
+          <article class="restaurant-card tap" data-merchant-id="1">
+            <div class="restaurant-head">
+              <h2>焰遇烧肉</h2>
+            </div>
+            <div class="restaurant-meta">
+              <span class="restaurant-rating-left"><span class="stars" aria-label="4.7星"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></span><span class="rating-score">4.7</span><span class="review-count">1280条评价</span></span>
+              <strong>¥300/人</strong>
+            </div>
+            <div class="restaurant-category-line"><span>日式烧肉</span><span>外滩</span><span class="rank-tag">黄浦区烧肉热门榜第1名</span></div>
+            <div class="restaurant-tags"><span>景观位</span><span>可预定</span><span>包厢</span></div>
+            <div class="dish-grid">
+              <div class="detail-dish"><img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&h=200&fit=crop" alt="M9和牛" /><span class="dish-label">M9和牛</span></div>
+              <div class="detail-dish"><img src="https://images.unsplash.com/photo-1555126634-323283e090fa?w=300&h=200&fit=crop" alt="厚切牛舌" /><span class="dish-label">厚切牛舌</span></div>
+              <div class="detail-dish"><img src="https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=300&h=200&fit=crop" alt="烧肉拼盘" /><span class="dish-label">烧肉拼盘</span></div>
+            </div>
+            <div class="recommend-row"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/d57d68af1adf4237b8c6af7da7e075c2.jpg" alt="阿杰头像" /><span>由阿杰推荐</span></div>
+            <div class="review-copy">
+              <div class="review-date"><span>2026.07.12</span><strong>评价过，4.7星</strong></div>
+              <p>“M9和牛入口即化，肉质非常鲜美。”</p>
+            </div>
+            <div class="detail-divider"></div>
+            <div class="been-row">
+              <div class="been-friends">
+                <span>5位朋友去过</span>
+                <span class="friend-stack">
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/721e9131bfc74718add0e404f0aa055f.jpg" alt="朋友 1" />
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/075389cc85f54aa0b3a71274942c40b5.jpg" alt="朋友 2" />
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/0696c03d6d84430c99f0f1391cb68589.jpg" alt="朋友 3" />
+                </span>
+              </div>
+              <span>♙</span>
+            </div>
+          </article>
+
+          <article class="restaurant-card tap" data-merchant-id="2">
+            <div class="restaurant-head">
+              <h2>澜亭·粤色</h2>
+            </div>
+            <div class="restaurant-meta">
+              <span class="restaurant-rating-left"><span class="stars" aria-label="4.3星"><span>★</span><span>★</span><span>★</span><span>★</span><span class="gray">★</span></span><span class="rating-score">4.3</span><span class="review-count">860条评价</span></span>
+              <strong>¥250/人</strong>
+            </div>
+            <div class="restaurant-category-line"><span>粤菜</span><span>陆家嘴</span><span class="rank-tag">浦东新区粤菜口味榜第3名</span></div>
+            <div class="restaurant-tags"><span>景观位</span><span>点心</span><span>宜商务</span></div>
+            <div class="dish-grid">
+              <div class="detail-dish"><img src="https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=300&h=200&fit=crop" alt="避风塘炒蟹" /><span class="dish-label">避风塘炒蟹</span></div>
+              <div class="detail-dish"><img src="https://images.unsplash.com/photo-1551218808-94e220e084d2?w=300&h=200&fit=crop" alt="水晶虾饺" /><span class="dish-label">水晶虾饺</span></div>
+              <div class="detail-dish"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-05/e684464e194047b59368efeda2173da4.jpg" alt="黑松露炒饭" /><span class="dish-label">黑松露炒饭</span></div>
+            </div>
+            <div class="recommend-row"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/59577b23de2149fdab5d49e2bfa82b25.jpg" alt="小鹿头像" /><span>由小鹿推荐</span></div>
+            <div class="review-copy">
+              <div class="review-date"><span>2026.08.03</span><strong>打卡，4.3星</strong></div>
+              <p>“黑松露炒饭绝绝子，避风塘炒蟹也非常够味。”</p>
+            </div>
+            <div class="detail-divider"></div>
+            <div class="been-row">
+              <div class="been-friends">
+                <span>2位朋友去过</span>
+                <span class="friend-stack">
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/721e9131bfc74718add0e404f0aa055f.jpg" alt="朋友 1" />
+                  <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/075389cc85f54aa0b3a71274942c40b5.jpg" alt="朋友 2" />
+                </span>
+              </div>
+              <span>♙</span>
+            </div>
+          </article>
+        </main>
+        <div class="detail-edit-actions" id="detail-edit-actions" aria-label="已选商户操作">
+          <button class="detail-edit-action delete" type="button" id="detail-delete-selected">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 7h14M10 11v6M14 11v6M8 7l1-2h6l1 2M7 7l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>删除</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+
+
+
+    <section class="screen share-screen" id="share-screen" aria-label="分享专辑页">
+      <div class="share-image-page">
+        <img class="share-reference-image" src="assets/share-page.jpg" alt="分享页" />
+        <button class="share-image-hotspot share-image-back" type="button" id="share-back-detail" aria-label="返回上一页"></button>
+        <button class="share-image-hotspot share-image-wechat" type="button" id="share-wechat-trigger" aria-label="微信好友"></button>
+      </div>
+    </section>
+
+
+
+
+    <section class="screen wechat-screen" id="wechat-screen" aria-label="微信聊天页">
+      <div class="wechat-image-page">
+        <img class="wechat-image" src="assets/wechat-chat.jpg" alt="微信聊天页" />
+        <button class="wechat-poster-hotspot" type="button" id="wechat-poster-hotspot" aria-label="打开客态专辑详情页"></button>
+        <button class="wechat-image-back" type="button" id="wechat-back-share" aria-label="返回分享页"></button>
+      </div>
+    </section>
+
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script>
+    const profileScreen = document.getElementById('profile-screen');
+    const albumScreen = document.getElementById('album-screen');
+    const detailScreen = document.getElementById('detail-screen');
+    let guestDetailScreen = null;
+    let guestDetailApi = null;
+    let shareReturnScreen = 'detail';
+    const shareScreen = document.getElementById('share-screen');
+    const wechatScreen = document.getElementById('wechat-screen');
+    const detailShell = document.getElementById('detail-shell');
+    const detailContent = document.getElementById('detail-content');
+    const detailMapToggle = document.getElementById('detail-map-toggle');
+    const detailShareTrigger = document.getElementById('detail-share-trigger');
+    const detailPopup = document.getElementById('detail-popup');
+    const detailPopupContent = document.getElementById('detail-popup-content');
+    const detailRippleContainer = document.getElementById('detail-ripple-container');
+    const detailMap = document.getElementById('detail-map');
+    const detailUserMarker = document.getElementById('detail-user-marker');
+    const detailWalkRadius = document.getElementById('detail-walk-radius');
+    const detailWalkLabel = document.getElementById('detail-walk-label');
+    const detailWalkHandle = document.getElementById('detail-walk-handle');
+    const priceFilterTrigger = document.getElementById('price-filter-trigger');
+    const priceFilterLabel = document.getElementById('price-filter-label');
+    const detailSortTrigger = document.getElementById('detail-sort-trigger');
+    const sortPanel = document.getElementById('sort-panel');
+    const sortReset = document.getElementById('sort-reset');
+    const sortConfirm = document.getElementById('sort-confirm');
+    const priceFilterPanel = document.getElementById('price-filter-panel');
+    const priceRange = document.getElementById('price-range');
+    const priceTrackActive = document.getElementById('price-track-active');
+    const priceMinHandle = document.getElementById('price-min-handle');
+    const priceMaxHandle = document.getElementById('price-max-handle');
+    const priceConfirm = document.getElementById('price-confirm');
+    const filterReset = document.getElementById('filter-reset');
+    const detailEditTrigger = document.getElementById('detail-edit-trigger');
+    const detailSelectAll = document.getElementById('detail-select-all');
+    const detailSelectAllBox = document.getElementById('detail-select-all-box');
+    const detailEditDone = document.getElementById('detail-edit-done');
+    const detailDeleteSelected = document.getElementById('detail-delete-selected');
+    const detailShareSelected = document.getElementById('detail-share-selected');
+    const detailManageTrigger = document.getElementById('detail-manage-trigger');
+    const detailManageMenu = document.getElementById('detail-manage-menu');
+    const profileScroll = document.getElementById('profile-scroll');
+    const stickyTitle = document.getElementById('sticky-title');
+    const toast = document.getElementById('toast');
+    let toastTimer = 0;
+    let detailMapMode = false;
+    let walkRadiusSize = 170;
+    let pendingPriceRange = { min: 0, max: 400 };
+    let selectedPriceTag = null;
+    let rangeWasDragged = false;
+    let appliedPriceRange = null;
+    let activeSortKey = null;
+    let detailEditMode = false;
+    const selectedMerchantIds = new Set();
+
+    const detailMerchants = [
+      {
+        name: '野火Bistro',
+        rating: 4.5,
+        type: '西餐 新天地',
+        price: '¥200/人',
+        desc: '他家的牛油果沙拉绝了',
+        images: [
+          'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop',
+          'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=200&fit=crop',
+          'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&h=200&fit=crop'
+        ]
+      },
+      {
+        name: '焰遇烧肉',
+        rating: 4.7,
+        type: '日式烧肉 外滩',
+        price: '¥300/人',
+        desc: 'M9和牛入口即化',
+        images: [
+          'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&h=200&fit=crop',
+          'https://images.unsplash.com/photo-1555126634-323283e090fa?w=300&h=200&fit=crop',
+          'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=300&h=200&fit=crop'
+        ]
+      },
+      {
+        name: '澜亭·粤色',
+        rating: 4.3,
+        type: '粤菜 陆家嘴',
+        price: '¥250/人',
+        desc: '黑松露炒饭绝绝子',
+        images: [
+          'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=300&h=200&fit=crop',
+          'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=300&h=200&fit=crop',
+          'https://modao.cc/agent-py/media/generated_images/2026-07-05/e684464e194047b59368efeda2173da4.jpg'
+        ]
+      },
+      {
+        name: '云岸露台',
+        rating: 4.6,
+        type: '创意菜 浦江',
+        price: '¥260/人',
+        desc: '露台位很适合看江景，傍晚光线特别温柔',
+        images: [
+          'https://modao.cc/agent-py/media/generated_images/2026-07-05/e5ed190a47b74362b16662887dbb4920.jpg',
+          'https://modao.cc/agent-py/media/generated_images/2026-07-05/4b1e78aca54549659f169f4932521c6f.jpg',
+          'https://modao.cc/agent-py/media/generated_images/2026-07-05/7ae546cbd51f46feb1761511eeb4535c.jpg'
+        ]
+      },
+      {
+        name: '月光小馆',
+        rating: 4.4,
+        type: 'Bistro 世纪大道',
+        price: '¥180/人',
+        desc: '小酒馆氛围轻松，招牌烤鸡和甜品都很稳',
+        images: [
+          'https://modao.cc/agent-py/media/generated_images/2026-07-05/a66682645a4b439ab70e7c7d2c35e70c.jpg',
+          'https://modao.cc/agent-py/media/generated_images/2026-07-05/602e9fe7734f48c59e48bc9a34fadc6a.jpg',
+          'https://modao.cc/agent-py/media/generated_images/2026-07-05/57610434c697441ebc33eb7808973e0b.jpg'
+        ]
+      },
+      {
+        name: '浦江夜宴',
+        rating: 4.8,
+        type: '江浙菜 杨高中路',
+        price: '¥320/人',
+        desc: '夜景位很惊喜，适合纪念日和朋友小聚',
+        images: [
+          'https://modao.cc/agent-py/media/generated_images/2026-07-05/c3cda757659041888b02410a071e11ff.jpg',
+          'https://modao.cc/agent-py/media/generated_images/2026-07-05/eecf2b02f72f495a9ed79f820ac1d972.jpg',
+          'https://modao.cc/agent-py/media/generated_images/2026-07-05/88a6c4b0aabc4de0bf3992597b972537.jpg'
+        ]
+      }
+    ];
+
+    function setScreen(name) {
+      profileScreen.classList.toggle('active', name === 'profile');
+      albumScreen.classList.toggle('active', name === 'album');
+      detailScreen.classList.toggle('active', name === 'detail');
+      if (guestDetailScreen) {
+        guestDetailScreen.classList.toggle('active', name === 'guestDetail');
+      }
+      shareScreen.classList.toggle('active', name === 'share');
+      wechatScreen.classList.toggle('active', name === 'wechat');
+      if (name === 'album') {
+        document.querySelector('.album-list').scrollTop = 0;
+      }
+      if (name === 'detail') {
+        detailContent.scrollTop = 0;
+      }
+      if (name === 'guestDetail') {
+        guestDetailScreen?.querySelector('.detail-content')?.scrollTo(0, 0);
+      }
+      if (name !== 'detail') {
+        setDetailMapMode(false);
+        setDetailEditMode(false);
+      }
+      if (name !== 'guestDetail') {
+        guestDetailApi?.resetTransientState();
+      }
+    }
+
+    function showToast(text) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = text + ' 页面暂未展开';
+      toast.classList.add('show');
+      toastTimer = window.setTimeout(() => toast.classList.remove('show'), 1300);
+    }
+
+    function setDetailMapMode(enabled) {
+      detailMapMode = enabled;
+      if (enabled) {
+        setDetailEditMode(false);
+      }
+      detailShell.classList.toggle('is-map-mode', enabled);
+      detailMapToggle.querySelector('span:last-child').textContent = enabled ? '列表模式' : '地图模式';
+      if (enabled) {
+        syncWalkRadiusToUserMarker();
+        updateWalkRadiusSize(walkRadiusSize);
+      }
+      if (!enabled) {
+        closeDetailPopup();
+      }
+    }
+
+    function visibleRestaurantCards() {
+      return Array.from(document.querySelectorAll('.restaurant-card')).filter((card) => !card.classList.contains('price-hidden'));
+    }
+
+    function updateMerchantSelectionUI() {
+      document.querySelectorAll('.restaurant-card').forEach((card) => {
+        const selected = selectedMerchantIds.has(card.dataset.merchantId);
+        card.classList.toggle('is-selected', selected);
+        const selector = card.querySelector('.merchant-select');
+        if (selector) {
+          selector.setAttribute('aria-checked', String(selected));
+        }
+      });
+      const visibleCards = visibleRestaurantCards();
+      const selectedVisibleCount = visibleCards.filter((card) => selectedMerchantIds.has(card.dataset.merchantId)).length;
+      const hasSelection = selectedMerchantIds.size > 0;
+      const allVisibleSelected = visibleCards.length > 0 && selectedVisibleCount === visibleCards.length;
+      detailShell.classList.toggle('has-selection', hasSelection);
+      detailSelectAllBox.classList.toggle('is-checked', allVisibleSelected);
+      detailSelectAll.setAttribute('aria-checked', String(allVisibleSelected));
+    }
+
+    function setDetailEditMode(enabled) {
+      detailEditMode = enabled;
+      detailShell.classList.toggle('is-edit-mode', enabled);
+      if (enabled) {
+        setDetailMapMode(false);
+        togglePricePanel(false);
+        toggleManageMenu(false);
+      } else {
+        selectedMerchantIds.clear();
+      }
+      updateMerchantSelectionUI();
+    }
+
+    function toggleMerchantSelection(card, forceSelected) {
+      const merchantId = card.dataset.merchantId;
+      const shouldSelect = forceSelected ?? !selectedMerchantIds.has(merchantId);
+      if (shouldSelect) {
+        selectedMerchantIds.add(merchantId);
+      } else {
+        selectedMerchantIds.delete(merchantId);
+      }
+      updateMerchantSelectionUI();
+    }
+
+    function ensureMerchantSelectors() {
+      document.querySelectorAll('.restaurant-card').forEach((card) => {
+        if (card.querySelector('.merchant-select')) return;
+        const selector = document.createElement('button');
+        selector.className = 'merchant-select';
+        selector.type = 'button';
+        selector.setAttribute('role', 'checkbox');
+        selector.setAttribute('aria-checked', 'false');
+        selector.setAttribute('aria-label', '选择商户');
+        selector.textContent = '✓';
+        selector.addEventListener('click', (event) => {
+          event.stopPropagation();
+          toggleMerchantSelection(card);
+        });
+        card.prepend(selector);
+      });
+    }
+
+    function syncWalkRadiusToUserMarker() {
+      detailWalkRadius.style.left = detailUserMarker.style.left;
+      detailWalkRadius.style.top = detailUserMarker.style.top;
+    }
+
+    function updateWalkRadiusSize(size) {
+      walkRadiusSize = Math.min(290, Math.max(116, size));
+      const minutes = Math.max(6, Math.round(walkRadiusSize / 17));
+      detailWalkRadius.style.width = walkRadiusSize + 'px';
+      detailWalkRadius.style.height = walkRadiusSize + 'px';
+      detailWalkLabel.textContent = `步行${minutes}分钟内可达`;
+      detailWalkRadius.setAttribute('aria-label', `步行${minutes}分钟内可达范围`);
+    }
+
+    function merchantPrice(index) {
+      return Number(detailMerchants[index]?.price.replace(/[^\d]/g, '') || 0);
+    }
+
+    function formatPriceValue(value) {
+      return value >= 400 ? '¥400+' : `¥${value}`;
+    }
+
+    function updatePriceRangeUI() {
+      const min = pendingPriceRange.min;
+      const max = pendingPriceRange.max;
+      const minPercent = (min / 400) * 100;
+      const maxPercent = (max / 400) * 100;
+      priceMinHandle.style.left = minPercent + '%';
+      priceMaxHandle.style.left = maxPercent + '%';
+      priceMinHandle.textContent = formatPriceValue(min);
+      priceMaxHandle.textContent = formatPriceValue(max);
+      priceTrackActive.style.left = minPercent + '%';
+      priceTrackActive.style.width = (maxPercent - minPercent) + '%';
+    }
+
+    function setPendingPriceRange(min, max, dragged = false) {
+      const nextMin = Math.max(0, Math.min(400, Math.round(min / 10) * 10));
+      const nextMax = Math.max(0, Math.min(400, Math.round(max / 10) * 10));
+      const clampedMin = Math.max(0, Math.min(nextMin, nextMax - 10));
+      const clampedMax = Math.min(400, Math.max(nextMax, nextMin + 10));
+      pendingPriceRange = {
+        min: clampedMin,
+        max: clampedMax
+      };
+      if (dragged) {
+        rangeWasDragged = true;
+        document.querySelectorAll('.price-chip').forEach((chip) => chip.classList.remove('active'));
+      }
+      updatePriceRangeUI();
+    }
+
+    function describePriceRange(range) {
+      if (!range) return '人均价⌄';
+      if (range.min === 0 && range.max === 50) return '50以下';
+      if (range.min === 300 && range.max === 400) return '300以上';
+      return `${range.min}-${range.max}`;
+    }
+
+    function applyPriceFilter(range) {
+      appliedPriceRange = range;
+      const activeFilterChips = Array.from(document.querySelectorAll('.filter-chip.active')).map((chip) => chip.textContent.trim());
+      document.querySelectorAll('.restaurant-card').forEach((card) => {
+        const merchantId = Number(card.dataset.merchantId);
+        const price = merchantPrice(merchantId);
+        const hiddenByPrice = range ? price < range.min || price > range.max : false;
+        const hiddenByTags = activeFilterChips.length ? (merchantId + activeFilterChips.join('').length) % 3 === 1 : false;
+        const hidden = hiddenByPrice || hiddenByTags;
+        card.classList.toggle('price-hidden', hidden);
+      });
+      document.querySelectorAll('[data-merchant-marker]').forEach((marker) => {
+        const merchantId = Number(marker.dataset.merchantMarker);
+        const price = merchantPrice(merchantId);
+        const hiddenByPrice = range ? price < range.min || price > range.max : false;
+        const hiddenByTags = activeFilterChips.length ? (merchantId + activeFilterChips.join('').length) % 3 === 1 : false;
+        const hidden = hiddenByPrice || hiddenByTags;
+        marker.classList.toggle('price-hidden', hidden);
+      });
+      if (range && detailPopup.classList.contains('active')) {
+        const activeMarker = document.querySelector('[data-merchant-marker].active');
+        if (activeMarker?.classList.contains('price-hidden')) {
+          closeDetailPopup();
+        }
+      }
+      priceFilterLabel.textContent = range ? describePriceRange(range) : '筛选';
+      priceFilterTrigger.classList.toggle('active', !!range || activeFilterChips.length > 0);
+      updateRankCrowns();
+    }
+
+    function toggleSortPanel(open) {
+      sortPanel.classList.toggle('active', open);
+      detailSortTrigger.classList.toggle('active', open || !!activeSortKey);
+      if (open) {
+        togglePricePanel(false);
+        toggleManageMenu(false);
+      }
+    }
+
+    function togglePricePanel(open) {
+      priceFilterPanel.classList.toggle('active', open);
+      priceFilterTrigger.classList.toggle('active', open || !!appliedPriceRange || !!document.querySelector('.filter-chip.active'));
+      if (open) {
+        toggleSortPanel(false);
+        toggleManageMenu(false);
+        updatePriceRangeUI();
+      }
+    }
+
+    function toggleManageMenu(open) {
+      detailManageMenu.classList.toggle('active', open);
+    }
+
+    function sortScore(merchantId, key) {
+      const index = Number(merchantId);
+      const price = merchantPrice(index);
+      const scores = {
+        distance: [88, 95, 82],
+        popular: [90, 98, 86],
+        rating: [91, 96, 88],
+        taste: [94, 89, 93],
+        environment: [98, 90, 92],
+        service: [89, 94, 91],
+        'join-new': [86, 98, 91],
+        'join-old': [98, 86, 91]
+      };
+      if (key === 'low-price') return -price;
+      if (key === 'high-price') return price;
+      return scores[key]?.[index] ?? 0;
+    }
+
+    function updateRankCrowns() {
+      const crowns = ['gold', 'silver', 'bronze'];
+      if (!activeSortKey) {
+        document.querySelectorAll('.rank-crown').forEach((crown) => {
+          crown.className = 'rank-crown';
+        });
+        return;
+      }
+      visibleRestaurantCards().forEach((card, index) => {
+        let crown = card.querySelector('.rank-crown');
+        if (!crown) {
+          crown = document.createElement('span');
+          crown.className = 'rank-crown';
+          crown.textContent = '👑';
+          card.prepend(crown);
+        }
+        crown.className = 'rank-crown';
+        if (index < 3) {
+          crown.classList.add('show', crowns[index]);
+          crown.setAttribute('aria-label', `第${index + 1}名`);
+        }
+      });
+      document.querySelectorAll('.restaurant-card.price-hidden .rank-crown').forEach((crown) => {
+        crown.className = 'rank-crown';
+      });
+    }
+
+    function applySort(key) {
+      activeSortKey = key;
+      const cards = Array.from(document.querySelectorAll('.restaurant-card'));
+      cards.sort((a, b) => sortScore(b.dataset.merchantId, key) - sortScore(a.dataset.merchantId, key));
+      cards.forEach((card) => detailContent.appendChild(card));
+      document.querySelectorAll('.sort-option').forEach((option) => {
+        option.classList.toggle('active', option.dataset.sort === key);
+      });
+      const activeText = document.querySelector(`.sort-option[data-sort="${key}"]`)?.textContent || '排序';
+      detailSortTrigger.querySelector('span').textContent = activeText;
+      detailSortTrigger.classList.toggle('active', !!key);
+      updateRankCrowns();
+    }
+
+    function resetSort() {
+      activeSortKey = null;
+      Array.from(document.querySelectorAll('.restaurant-card'))
+        .sort((a, b) => Number(a.dataset.merchantId) - Number(b.dataset.merchantId))
+        .forEach((card) => detailContent.appendChild(card));
+      document.querySelectorAll('.sort-option').forEach((option) => option.classList.remove('active'));
+      detailSortTrigger.querySelector('span').textContent = '排序';
+      detailSortTrigger.classList.remove('active');
+      updateRankCrowns();
+      toggleSortPanel(false);
+    }
+
+    function resetFilters() {
+      pendingPriceRange = { min: 0, max: 400 };
+      selectedPriceTag = null;
+      rangeWasDragged = false;
+      document.querySelectorAll('.price-chip, .filter-chip').forEach((chip) => chip.classList.remove('active'));
+      updatePriceRangeUI();
+      applyPriceFilter(null);
+      togglePricePanel(false);
+    }
+
+    function showDetailPopup(index, event) {
+      if (event) event.stopPropagation();
+      const merchant = detailMerchants[index];
+      document.querySelectorAll('[data-merchant-marker]').forEach((marker, markerIndex) => {
+        marker.classList.toggle('active', markerIndex === index);
+        marker.classList.toggle('dimmed', markerIndex !== index);
+      });
+
+      detailRippleContainer.innerHTML = '';
+      const marker = document.querySelectorAll('[data-merchant-marker]')[index];
+      const markerRect = marker.getBoundingClientRect();
+      const mapRect = document.getElementById('detail-map').getBoundingClientRect();
+      const ripple = document.createElement('div');
+      ripple.className = 'detail-ripple';
+      ripple.style.top = (markerRect.top - mapRect.top + 16) + 'px';
+      ripple.style.left = (markerRect.left - mapRect.left + 16) + 'px';
+      detailRippleContainer.appendChild(ripple);
+      window.setTimeout(() => ripple.remove(), 2000);
+
+      const fullStars = '★'.repeat(Math.floor(merchant.rating));
+      detailPopupContent.innerHTML = `
+        <div class="popup-head">
+          <h3>${merchant.name}</h3>
+          <div class="popup-stars">${fullStars}</div>
+        </div>
+        <p class="popup-meta">${merchant.type} · ${merchant.price}</p>
+        <div class="popup-images">
+          <img src="${merchant.images[0]}" alt="${merchant.name} 菜品 1">
+          <img src="${merchant.images[1]}" alt="${merchant.name} 菜品 2">
+          <img src="${merchant.images[2]}" alt="${merchant.name} 菜品 3">
+        </div>
+        <p class="popup-desc">“${merchant.desc}”</p>
+      `;
+      detailPopup.classList.add('active');
+    }
+
+    function closeDetailPopup() {
+      detailPopup.classList.remove('active');
+      document.querySelectorAll('[data-merchant-marker]').forEach((marker) => {
+        marker.classList.remove('active', 'dimmed');
+      });
+      detailRippleContainer.innerHTML = '';
+    }
+
+    function enableUserMarkerDrag() {
+      let dragState = null;
+
+      function pointFromEvent(event) {
+        const touch = event.touches?.[0] || event.changedTouches?.[0];
+        return touch || event;
+      }
+
+      function startDrag(event, pointerId = 'mouse') {
+        if (!detailMapMode) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const point = pointFromEvent(event);
+        const mapRect = detailMap.getBoundingClientRect();
+        const markerRect = detailUserMarker.getBoundingClientRect();
+        dragState = {
+          pointerId,
+          moved: false,
+          startX: point.clientX,
+          startY: point.clientY,
+          offsetX: point.clientX - (markerRect.left + markerRect.width / 2),
+          offsetY: point.clientY - (markerRect.top + markerRect.height / 2),
+          minX: 22,
+          minY: 22,
+          maxX: mapRect.width - 22,
+          maxY: mapRect.height - 22
+        };
+        detailUserMarker.classList.add('dragging');
+      }
+
+      function moveDrag(event, pointerId = 'mouse') {
+        if (!dragState || dragState.pointerId !== pointerId) return;
+        event.preventDefault();
+        const point = pointFromEvent(event);
+        const mapRect = detailMap.getBoundingClientRect();
+        const x = Math.min(dragState.maxX, Math.max(dragState.minX, point.clientX - mapRect.left - dragState.offsetX));
+        const y = Math.min(dragState.maxY, Math.max(dragState.minY, point.clientY - mapRect.top - dragState.offsetY));
+        detailUserMarker.style.left = x + 'px';
+        detailUserMarker.style.top = y + 'px';
+        syncWalkRadiusToUserMarker();
+        if (Math.hypot(point.clientX - dragState.startX, point.clientY - dragState.startY) > 4) {
+          dragState.moved = true;
+        }
+      }
+
+      function finishDrag(event, pointerId = 'mouse') {
+        if (!dragState || dragState.pointerId !== pointerId) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const wasMoved = dragState.moved;
+        dragState = null;
+        detailUserMarker.classList.remove('dragging');
+        if (!wasMoved) {
+          showToast('您当前的位置');
+        }
+      }
+
+      detailUserMarker.addEventListener('pointerdown', (event) => {
+        startDrag(event, event.pointerId);
+        if (dragState) {
+          detailUserMarker.setPointerCapture(event.pointerId);
+        }
+      });
+      detailUserMarker.addEventListener('pointermove', (event) => moveDrag(event, event.pointerId));
+      detailUserMarker.addEventListener('pointerup', (event) => finishDrag(event, event.pointerId));
+      detailUserMarker.addEventListener('pointercancel', (event) => finishDrag(event, event.pointerId));
+
+      detailUserMarker.addEventListener('mousedown', (event) => startDrag(event));
+      window.addEventListener('mousemove', (event) => moveDrag(event));
+      window.addEventListener('mouseup', (event) => finishDrag(event));
+
+      detailUserMarker.addEventListener('touchstart', (event) => startDrag(event, 'touch'), { passive: false });
+      window.addEventListener('touchmove', (event) => moveDrag(event, 'touch'), { passive: false });
+      window.addEventListener('touchend', (event) => finishDrag(event, 'touch'), { passive: false });
+      window.addEventListener('touchcancel', (event) => finishDrag(event, 'touch'), { passive: false });
+    }
+
+    function enableWalkRadiusResize() {
+      let resizeState = null;
+
+      function pointFromEvent(event) {
+        const touch = event.touches?.[0] || event.changedTouches?.[0];
+        return touch || event;
+      }
+
+      function startResize(event, pointerId = 'mouse') {
+        if (!detailMapMode) return;
+        event.preventDefault();
+        event.stopPropagation();
+        resizeState = { pointerId };
+        detailWalkRadius.classList.add('resizing');
+      }
+
+      function moveResize(event, pointerId = 'mouse') {
+        if (!resizeState || resizeState.pointerId !== pointerId) return;
+        event.preventDefault();
+        const point = pointFromEvent(event);
+        const radiusRect = detailWalkRadius.getBoundingClientRect();
+        const centerX = radiusRect.left + radiusRect.width / 2;
+        const centerY = radiusRect.top + radiusRect.height / 2;
+        const diameter = Math.hypot(point.clientX - centerX, point.clientY - centerY) * 2;
+        updateWalkRadiusSize(diameter);
+      }
+
+      function finishResize(event, pointerId = 'mouse') {
+        if (!resizeState || resizeState.pointerId !== pointerId) return;
+        event.preventDefault();
+        event.stopPropagation();
+        resizeState = null;
+        detailWalkRadius.classList.remove('resizing');
+      }
+
+      detailWalkHandle.addEventListener('pointerdown', (event) => {
+        startResize(event, event.pointerId);
+        if (resizeState) {
+          detailWalkHandle.setPointerCapture(event.pointerId);
+        }
+      });
+      detailWalkHandle.addEventListener('pointermove', (event) => moveResize(event, event.pointerId));
+      detailWalkHandle.addEventListener('pointerup', (event) => finishResize(event, event.pointerId));
+      detailWalkHandle.addEventListener('pointercancel', (event) => finishResize(event, event.pointerId));
+
+      detailWalkHandle.addEventListener('mousedown', (event) => startResize(event));
+      window.addEventListener('mousemove', (event) => moveResize(event));
+      window.addEventListener('mouseup', (event) => finishResize(event));
+
+      detailWalkHandle.addEventListener('touchstart', (event) => startResize(event, 'touch'), { passive: false });
+      window.addEventListener('touchmove', (event) => moveResize(event, 'touch'), { passive: false });
+      window.addEventListener('touchend', (event) => finishResize(event, 'touch'), { passive: false });
+      window.addEventListener('touchcancel', (event) => finishResize(event, 'touch'), { passive: false });
+    }
+
+    function enablePriceFilter() {
+      let dragHandle = null;
+
+      function pointFromEvent(event) {
+        const touch = event.touches?.[0] || event.changedTouches?.[0];
+        return touch || event;
+      }
+
+      function valueFromPoint(point) {
+        const trackRect = priceRange.querySelector('.price-track').getBoundingClientRect();
+        const percent = Math.min(1, Math.max(0, (point.clientX - trackRect.left) / trackRect.width));
+        return percent * 400;
+      }
+
+      function startHandleDrag(handle, event, pointerId = 'mouse') {
+        event.preventDefault();
+        event.stopPropagation();
+        dragHandle = { handle, pointerId };
+        handle.classList.add('dragging');
+      }
+
+      function moveHandleDrag(event, pointerId = 'mouse') {
+        if (!dragHandle || dragHandle.pointerId !== pointerId) return;
+        event.preventDefault();
+        const value = valueFromPoint(pointFromEvent(event));
+        if (dragHandle.handle === priceMinHandle) {
+          setPendingPriceRange(Math.min(value, pendingPriceRange.max - 10), pendingPriceRange.max, true);
+        } else {
+          setPendingPriceRange(pendingPriceRange.min, Math.max(value, pendingPriceRange.min + 10), true);
+        }
+      }
+
+      function finishHandleDrag(event, pointerId = 'mouse') {
+        if (!dragHandle || dragHandle.pointerId !== pointerId) return;
+        event.preventDefault();
+        dragHandle.handle.classList.remove('dragging');
+        dragHandle = null;
+        applyPriceFilter({ ...pendingPriceRange });
+      }
+
+      priceFilterTrigger.addEventListener('click', (event) => {
+        event.stopPropagation();
+        togglePricePanel(!priceFilterPanel.classList.contains('active'));
+      });
+
+      document.querySelectorAll('.price-chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.price-chip').forEach((item) => item.classList.remove('active'));
+          chip.classList.add('active');
+          selectedPriceTag = { min: Number(chip.dataset.min), max: Number(chip.dataset.max) };
+          rangeWasDragged = false;
+          setPendingPriceRange(selectedPriceTag.min, selectedPriceTag.max, false);
+          applyPriceFilter({ ...selectedPriceTag });
+        });
+      });
+
+      [
+        [priceMinHandle, 'min'],
+        [priceMaxHandle, 'max']
+      ].forEach(([handle]) => {
+        handle.addEventListener('pointerdown', (event) => {
+          startHandleDrag(handle, event, event.pointerId);
+          if (dragHandle) {
+            handle.setPointerCapture(event.pointerId);
+          }
+        });
+        handle.addEventListener('pointermove', (event) => moveHandleDrag(event, event.pointerId));
+        handle.addEventListener('pointerup', (event) => finishHandleDrag(event, event.pointerId));
+        handle.addEventListener('pointercancel', (event) => finishHandleDrag(event, event.pointerId));
+        handle.addEventListener('mousedown', (event) => startHandleDrag(handle, event));
+        handle.addEventListener('touchstart', (event) => startHandleDrag(handle, event, 'touch'), { passive: false });
+      });
+
+      window.addEventListener('mousemove', (event) => moveHandleDrag(event));
+      window.addEventListener('mouseup', (event) => finishHandleDrag(event));
+      window.addEventListener('touchmove', (event) => moveHandleDrag(event, 'touch'), { passive: false });
+      window.addEventListener('touchend', (event) => finishHandleDrag(event, 'touch'), { passive: false });
+      window.addEventListener('touchcancel', (event) => finishHandleDrag(event, 'touch'), { passive: false });
+
+      priceConfirm.addEventListener('click', () => {
+        const finalRange = rangeWasDragged ? { ...pendingPriceRange } : selectedPriceTag ? { ...selectedPriceTag } : appliedPriceRange;
+        applyPriceFilter(finalRange);
+        togglePricePanel(false);
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!priceFilterPanel.contains(event.target) && event.target !== priceFilterTrigger && !sortPanel.contains(event.target) && event.target !== detailSortTrigger) {
+          togglePricePanel(false);
+          toggleSortPanel(false);
+        }
+      });
+    }
+
+
+
+    function applyGuestDetailDifferences(root) {
+      const actions = root.querySelector('.detail-title-actions');
+      if (actions) {
+        actions.innerHTML = `
+          <button class="guest-save-album" type="button" aria-label="收藏专辑">
+            <svg viewBox="0 0 28 28" aria-hidden="true">
+              <path d="M8.2 4.2h11.6a2.8 2.8 0 0 1 2.8 2.8v16.8l-8.6-4.4-8.6 4.4V7a2.8 2.8 0 0 1 2.8-2.8Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+              <path class="save-plus" d="M14 9.1v7.6M10.2 12.9h7.6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              <path class="save-check" d="m9.6 13.7 3.1 3.2 6.2-7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        `;
+      }
+
+      const meta = root.querySelector('.detail-album-meta');
+      if (meta) {
+        meta.textContent = '6家商户，已被47人收藏';
+      }
+
+      const addFilter = Array.from(root.querySelectorAll('.detail-filter')).find((button) => button.textContent.trim() === '添加');
+      addFilter?.remove();
+
+      root.querySelectorAll('.restaurant-card').forEach((card) => {
+        if (!card.querySelector('.guest-want-button')) {
+          const want = document.createElement('button');
+          want.className = 'guest-want-button';
+          want.type = 'button';
+          want.setAttribute('aria-label', '想去');
+          want.innerHTML = `
+            <svg viewBox="0 0 32 28" aria-hidden="true">
+              <path class="want-heart-fill" d="M16 25.4 14.2 23.8C7.8 18 3.6 14.2 3.6 9.4 3.6 5.5 6.6 2.6 10.4 2.6c2.2 0 4.3 1 5.6 2.7 1.3-1.7 3.4-2.7 5.6-2.7 3.8 0 6.8 2.9 6.8 6.8 0 4.8-4.2 8.6-10.6 14.4L16 25.4Z" fill="currentColor"/>
+              <path class="want-heart-outline" d="M15.8 25.2S3.7 18.1 3.7 10.3c0-4.1 2.8-6.8 6.4-6.8 2.3 0 4.4 1.3 5.7 3.3 1.3-2 3.4-3.3 5.8-3.3 3.5 0 6.3 2.7 6.3 6.8 0 1.2-.3 2.4-.8 3.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="want-plus" d="M24.2 17.2v7.2M20.6 20.8h7.2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            </svg>
+            <span>想去</span>
+          `;
+          card.appendChild(want);
+        }
+      });
+
+      root.querySelectorAll('.review-copy .review-date').forEach((dateRow) => {
+        const date = dateRow.querySelector('span');
+        const strong = dateRow.querySelector('strong');
+        if (date) {
+          date.textContent = '好友@晕碳中';
+        }
+        if (strong) {
+          strong.textContent = '评价';
+        }
+      });
+
+      const editActions = root.querySelector('.detail-edit-actions');
+      if (editActions) {
+        editActions.innerHTML = '<button class="detail-edit-action guest-add-selected" type="button">加入到我的心选专辑</button>';
+      }
+
+      if (!root.querySelector('.guest-subscribe-mask')) {
+        const modal = document.createElement('div');
+        modal.className = 'guest-subscribe-mask';
+        modal.innerHTML = '<div class="guest-subscribe-dialog success" role="dialog" aria-modal="true" aria-label="订阅成功"><h2>订阅成功</h2><p>后续该专辑的更新信息将第一时间通知你~</p><button class="guest-subscribe-ok" type="button">好的</button></div>';
+        root.querySelector('.detail-shell')?.appendChild(modal);
+      }
+
+      if (!root.querySelector('.guest-cancel-subscribe-mask')) {
+        const cancelModal = document.createElement('div');
+        cancelModal.className = 'guest-subscribe-mask guest-cancel-subscribe-mask';
+        cancelModal.innerHTML = '<div class="guest-subscribe-dialog cancel" role="dialog" aria-modal="true" aria-label="确认取消订阅"><h2>确认取消订阅？</h2><p>取消后将无法在第一时间获取该专辑的更新信息</p><div class="guest-subscribe-actions"><button class="guest-subscribe-continue" type="button">继续订阅</button><button class="guest-subscribe-cancel" type="button">确认取消</button></div></div>';
+        root.querySelector('.detail-shell')?.appendChild(cancelModal);
+      }
+
+      if (!root.querySelector('.guest-album-sheet-mask')) {
+        const sheet = document.createElement('div');
+        sheet.className = 'guest-album-sheet-mask';
+        sheet.innerHTML = `
+          <section class="guest-album-sheet" aria-label="添加到心选专辑">
+            <div class="guest-album-handle" aria-hidden="true"></div>
+            <div class="guest-album-sheet-head"><span>添加地点到专辑</span><button class="guest-album-multi" type="button">多选</button></div>
+            <div class="guest-album-list">
+              <button class="guest-album-row new" type="button"><span class="guest-album-thumb">+</span><span><span class="guest-album-name">新建专辑</span></span><span></span></button>
+              <button class="guest-album-row" type="button"><img class="guest-album-thumb" src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=160&h=160&fit=crop" alt="我的约会灵感封面"/><span><span class="guest-album-name">我的约会灵感</span><span class="guest-album-count">12家</span></span><span class="guest-album-check"></span></button>
+              <button class="guest-album-row" type="button"><img class="guest-album-thumb" src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=160&h=160&fit=crop" alt="周末放空指南封面"/><span><span class="guest-album-name">周末放空指南</span><span class="guest-album-count">8家</span></span><span class="guest-album-check"></span></button>
+              <button class="guest-album-row" type="button"><img class="guest-album-thumb" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=160&h=160&fit=crop" alt="午后糖水计划封面"/><span><span class="guest-album-name">午后糖水计划</span><span class="guest-album-count">15家</span></span><span class="guest-album-check"></span></button>
+              <button class="guest-album-row" type="button"><img class="guest-album-thumb" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=160&h=160&fit=crop" alt="朋友聚餐备用封面"/><span><span class="guest-album-name">朋友聚餐备用</span><span class="guest-album-count">21家</span></span><span class="guest-album-check"></span></button>
+              <button class="guest-album-row" type="button"><img class="guest-album-thumb" src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=160&h=160&fit=crop" alt="夜景餐厅收藏封面"/><span><span class="guest-album-name">夜景餐厅收藏</span><span class="guest-album-count">9家</span></span><span class="guest-album-check"></span></button>
+            </div>
+            <button class="guest-album-add" type="button">添加 (0)</button>
+          </section>
+        `;
+        root.querySelector('.detail-shell')?.appendChild(sheet);
+      }
+
+      if (!root.querySelector('.guest-added-toast')) {
+        const addedToast = document.createElement('div');
+        addedToast.className = 'guest-added-toast';
+        addedToast.textContent = '已添加成功';
+        root.querySelector('.detail-shell')?.appendChild(addedToast);
+      }
+    }
+
+    function ensureGuestDetailScreen() {
+      if (guestDetailScreen) return;
+      guestDetailScreen = detailScreen.cloneNode(true);
+      guestDetailScreen.classList.remove('active');
+      guestDetailScreen.setAttribute('aria-label', '客态专辑详情页');
+      guestDetailScreen.querySelectorAll('[id]').forEach((node) => {
+        node.id = 'guest-' + node.id;
+      });
+      guestDetailScreen.id = 'guest-detail-screen';
+      guestDetailScreen.querySelectorAll('[data-filter-section]').forEach((tab) => {
+        tab.dataset.filterSection = 'guest-' + tab.dataset.filterSection;
+      });
+      applyGuestDetailDifferences(guestDetailScreen);
+      shareScreen.parentNode.insertBefore(guestDetailScreen, shareScreen);
+      guestDetailApi = initGuestDetailPage(guestDetailScreen);
+    }
+
+    function initGuestDetailPage(root) {
+      const q = (selector) => root.querySelector(selector);
+      const qa = (selector) => Array.from(root.querySelectorAll(selector));
+      const shell = q('.detail-shell');
+      const content = q('.detail-content');
+      const mapToggle = q('.detail-map-toggle');
+      const shareTrigger = q('.detail-share-button');
+      const popup = q('.detail-popup');
+      const popupContent = q('[id$="detail-popup-content"]');
+      const rippleContainer = q('[id$="detail-ripple-container"]');
+      const map = q('.detail-map');
+      const userMarker = q('[id$="detail-user-marker"]');
+      const walkRadius = q('.walk-radius');
+      const walkLabel = q('.walk-radius-label');
+      const walkHandle = q('.walk-radius-handle');
+      const priceTrigger = q('[id$="price-filter-trigger"]');
+      const priceLabel = q('[id$="price-filter-label"]');
+      const sortTrigger = q('[id$="detail-sort-trigger"]');
+      const sortPanelLocal = q('.sort-panel');
+      const pricePanel = q('.price-filter-panel');
+      const priceRangeLocal = q('.price-range');
+      const priceTrack = q('.price-track-active');
+      const priceMin = q('[id$="price-min-handle"]');
+      const priceMax = q('[id$="price-max-handle"]');
+      const selectAll = q('[id$="detail-select-all"]');
+      const selectAllBox = q('[id$="detail-select-all-box"]');
+      const manageTrigger = q('.detail-manage-button');
+      const manageMenu = q('.detail-manage-menu');
+      const selectedIds = new Set();
+      let guestAddedTimer = 0;
+      let mapMode = false;
+      let editMode = false;
+      let activeGuestSort = null;
+      let pendingRange = { min: 0, max: 400 };
+      let activeRange = null;
+      let walkSize = 170;
+
+      function scopedCards() {
+        return qa('.restaurant-card');
+      }
+
+      function visibleCards() {
+        return scopedCards().filter((card) => !card.classList.contains('price-hidden'));
+      }
+
+      function updateSelection() {
+        scopedCards().forEach((card) => {
+          const selected = selectedIds.has(card.dataset.merchantId);
+          card.classList.toggle('is-selected', selected);
+          card.querySelector('.merchant-select')?.setAttribute('aria-checked', String(selected));
+        });
+        const visible = visibleCards();
+        const selectedVisible = visible.filter((card) => selectedIds.has(card.dataset.merchantId)).length;
+        const allSelected = visible.length > 0 && selectedVisible === visible.length;
+        shell.classList.toggle('has-selection', selectedIds.size > 0);
+        selectAllBox?.classList.toggle('is-checked', allSelected);
+        selectAll?.setAttribute('aria-checked', String(allSelected));
+      }
+
+      function toggleSelect(card, force) {
+        const id = card.dataset.merchantId;
+        const shouldSelect = force ?? !selectedIds.has(id);
+        if (shouldSelect) selectedIds.add(id);
+        else selectedIds.delete(id);
+        updateSelection();
+      }
+
+      function setEditMode(enabled) {
+        editMode = enabled;
+        shell.classList.toggle('is-edit-mode', enabled);
+        if (enabled) {
+          setMapMode(false);
+          togglePrice(false);
+          toggleSort(false);
+          toggleManage(false);
+        } else {
+          selectedIds.clear();
+        }
+        updateSelection();
+      }
+
+      function syncWalk() {
+        walkRadius.style.left = userMarker.style.left;
+        walkRadius.style.top = userMarker.style.top;
+      }
+
+      function updateWalk(size) {
+        walkSize = Math.min(290, Math.max(116, size));
+        const minutes = Math.max(6, Math.round(walkSize / 17));
+        walkRadius.style.width = walkSize + 'px';
+        walkRadius.style.height = walkSize + 'px';
+        walkLabel.textContent = `步行${minutes}分钟内可达`;
+      }
+
+      function closePopup() {
+        popup.classList.remove('active');
+        qa('[data-merchant-marker]').forEach((marker) => marker.classList.remove('active', 'dimmed'));
+        rippleContainer.innerHTML = '';
+      }
+
+      function setMapMode(enabled) {
+        mapMode = enabled;
+        if (enabled) setEditMode(false);
+        shell.classList.toggle('is-map-mode', enabled);
+        mapToggle.querySelector('span:last-child').textContent = enabled ? '列表模式' : '地图模式';
+        if (enabled) {
+          syncWalk();
+          updateWalk(walkSize);
+        } else {
+          closePopup();
+        }
+      }
+
+      function updateRangeUI() {
+        const minPercent = (pendingRange.min / 400) * 100;
+        const maxPercent = (pendingRange.max / 400) * 100;
+        priceMin.style.left = minPercent + '%';
+        priceMax.style.left = maxPercent + '%';
+        priceMin.textContent = formatPriceValue(pendingRange.min);
+        priceMax.textContent = formatPriceValue(pendingRange.max);
+        priceTrack.style.left = minPercent + '%';
+        priceTrack.style.width = (maxPercent - minPercent) + '%';
+      }
+
+      function setRange(min, max) {
+        const nextMin = Math.max(0, Math.min(390, Math.round(min / 10) * 10));
+        const nextMax = Math.min(400, Math.max(10, Math.round(max / 10) * 10));
+        pendingRange = { min: Math.min(nextMin, nextMax - 10), max: Math.max(nextMax, nextMin + 10) };
+        updateRangeUI();
+      }
+
+      function applyFilter(range) {
+        activeRange = range;
+        const activeChips = qa('.filter-chip.active').map((chip) => chip.textContent.trim());
+        scopedCards().forEach((card) => {
+          const merchantId = Number(card.dataset.merchantId);
+          const price = merchantPrice(merchantId);
+          const hiddenByPrice = range ? price < range.min || price > range.max : false;
+          const hiddenByTags = activeChips.length ? (merchantId + activeChips.join('').length) % 3 === 1 : false;
+          card.classList.toggle('price-hidden', hiddenByPrice || hiddenByTags);
+        });
+        qa('[data-merchant-marker]').forEach((marker) => {
+          const merchantId = Number(marker.dataset.merchantMarker);
+          const price = merchantPrice(merchantId);
+          const hiddenByPrice = range ? price < range.min || price > range.max : false;
+          const hiddenByTags = activeChips.length ? (merchantId + activeChips.join('').length) % 3 === 1 : false;
+          marker.classList.toggle('price-hidden', hiddenByPrice || hiddenByTags);
+        });
+        priceLabel.textContent = range ? describePriceRange(range) : '筛选';
+        priceTrigger.classList.toggle('active', !!range || activeChips.length > 0);
+        updateCrowns();
+      }
+
+      function toggleSort(open) {
+        sortPanelLocal.classList.toggle('active', open);
+        sortTrigger.classList.toggle('active', open || !!activeGuestSort);
+        if (open) {
+          togglePrice(false);
+          toggleManage(false);
+        }
+      }
+
+      function togglePrice(open) {
+        pricePanel.classList.toggle('active', open);
+        priceTrigger.classList.toggle('active', open || !!activeRange || !!q('.filter-chip.active'));
+        if (open) {
+          toggleSort(false);
+          toggleManage(false);
+          updateRangeUI();
+        }
+      }
+
+      function toggleManage(open) {
+        manageMenu.classList.toggle('active', open);
+      }
+
+      function updateCrowns() {
+        const crowns = ['gold', 'silver', 'bronze'];
+        if (!activeGuestSort) {
+          qa('.rank-crown').forEach((crown) => { crown.className = 'rank-crown'; });
+          return;
+        }
+        visibleCards().forEach((card, index) => {
+          let crown = card.querySelector('.rank-crown');
+          if (!crown) {
+            crown = document.createElement('span');
+            crown.className = 'rank-crown';
+            crown.textContent = '👑';
+            card.prepend(crown);
+          }
+          crown.className = 'rank-crown';
+          if (index < 3) crown.classList.add('show', crowns[index]);
+        });
+      }
+
+      function applyGuestSort(key) {
+        activeGuestSort = key;
+        scopedCards()
+          .sort((a, b) => sortScore(b.dataset.merchantId, key) - sortScore(a.dataset.merchantId, key))
+          .forEach((card) => content.appendChild(card));
+        qa('.sort-option').forEach((option) => option.classList.toggle('active', option.dataset.sort === key));
+        sortTrigger.querySelector('span').textContent = q(`.sort-option[data-sort="${key}"]`)?.textContent || '排序';
+        sortTrigger.classList.add('active');
+        updateCrowns();
+      }
+
+      function resetSortLocal() {
+        activeGuestSort = null;
+        scopedCards()
+          .sort((a, b) => Number(a.dataset.merchantId) - Number(b.dataset.merchantId))
+          .forEach((card) => content.appendChild(card));
+        qa('.sort-option').forEach((option) => option.classList.remove('active'));
+        sortTrigger.querySelector('span').textContent = '排序';
+        sortTrigger.classList.remove('active');
+        updateCrowns();
+        toggleSort(false);
+      }
+
+      function resetFilterLocal() {
+        pendingRange = { min: 0, max: 400 };
+        qa('.price-chip, .filter-chip').forEach((chip) => chip.classList.remove('active'));
+        updateRangeUI();
+        applyFilter(null);
+        togglePrice(false);
+      }
+
+      function showGuestAddedToast() {
+        const addedToast = q('.guest-added-toast');
+        if (!addedToast) return;
+        window.clearTimeout(guestAddedTimer);
+        addedToast.classList.add('show');
+        guestAddedTimer = window.setTimeout(() => addedToast.classList.remove('show'), 1300);
+      }
+
+      function updateGuestAlbumAddState() {
+        const sheet = q('.guest-album-sheet');
+        if (!sheet) return;
+        const count = qa('.guest-album-row.selected').length;
+        sheet.classList.toggle('has-choice', count > 0);
+        q('.guest-album-add').textContent = `添加 (${count})`;
+      }
+
+      function closeGuestAlbumSheet(success = false) {
+        q('.guest-album-sheet-mask')?.classList.remove('active');
+        q('.guest-album-sheet')?.classList.remove('is-multi', 'has-choice');
+        q('.guest-album-multi').textContent = '多选';
+        qa('.guest-album-row.selected').forEach((row) => row.classList.remove('selected'));
+        updateGuestAlbumAddState();
+        if (success) showGuestAddedToast();
+      }
+
+      function showPopup(index, event) {
+        event?.stopPropagation();
+        const merchant = detailMerchants[index];
+        qa('[data-merchant-marker]').forEach((marker, markerIndex) => {
+          marker.classList.toggle('active', markerIndex === index);
+          marker.classList.toggle('dimmed', markerIndex !== index);
+        });
+        rippleContainer.innerHTML = '';
+        const marker = qa('[data-merchant-marker]')[index];
+        const markerRect = marker.getBoundingClientRect();
+        const mapRect = map.getBoundingClientRect();
+        const ripple = document.createElement('div');
+        ripple.className = 'detail-ripple';
+        ripple.style.top = (markerRect.top - mapRect.top + 16) + 'px';
+        ripple.style.left = (markerRect.left - mapRect.left + 16) + 'px';
+        rippleContainer.appendChild(ripple);
+        window.setTimeout(() => ripple.remove(), 2000);
+        popupContent.innerHTML = `
+          <div class="popup-head">
+            <h3>${merchant.name}</h3>
+            <div class="popup-stars">${'★'.repeat(Math.floor(merchant.rating))}</div>
+          </div>
+          <p class="popup-meta">${merchant.type} · ${merchant.price}</p>
+          <div class="popup-images">
+            <img src="${merchant.images[0]}" alt="${merchant.name} 菜品 1">
+            <img src="${merchant.images[1]}" alt="${merchant.name} 菜品 2">
+            <img src="${merchant.images[2]}" alt="${merchant.name} 菜品 3">
+          </div>
+          <p class="popup-desc">“${merchant.desc}”</p>
+        `;
+        popup.classList.add('active');
+      }
+
+      root.addEventListener('click', (event) => {
+        if (event.target.closest('[id$="detail-back-list"]')) setScreen('wechat');
+        if (event.target.closest('.detail-map-back')) setMapMode(false);
+        if (event.target.closest('.guest-save-album')) {
+          event.stopPropagation();
+          const saveButton = event.target.closest('.guest-save-album');
+          if (saveButton.classList.contains('active')) {
+            q('.guest-cancel-subscribe-mask')?.classList.add('active');
+          } else {
+            saveButton.classList.add('active');
+            q('.guest-subscribe-mask:not(.guest-cancel-subscribe-mask)')?.classList.add('active');
+          }
+        }
+        if (event.target.closest('.guest-subscribe-ok')) {
+          event.stopPropagation();
+          q('.guest-subscribe-mask:not(.guest-cancel-subscribe-mask)')?.classList.remove('active');
+        }
+        if (event.target.closest('.guest-subscribe-continue')) {
+          event.stopPropagation();
+          q('.guest-cancel-subscribe-mask')?.classList.remove('active');
+        }
+        if (event.target.closest('.guest-subscribe-cancel')) {
+          event.stopPropagation();
+          q('.guest-save-album')?.classList.remove('active');
+          q('.guest-cancel-subscribe-mask')?.classList.remove('active');
+        }
+        if (event.target.classList.contains('guest-subscribe-mask')) {
+          event.stopPropagation();
+          event.target.classList.remove('active');
+        }
+        if (event.target.closest('.detail-share-button')) {
+          shareReturnScreen = 'guestDetail';
+          setScreen('share');
+        }
+        if (event.target.closest('.detail-manage-button')) {
+          event.stopPropagation();
+          togglePrice(false);
+          toggleSort(false);
+          toggleManage(!manageMenu.classList.contains('active'));
+        }
+        if (event.target.closest('[id$="detail-map-toggle"]')) {
+          toggleManage(false);
+          toggleSort(false);
+          togglePrice(false);
+          setMapMode(!mapMode);
+        }
+        if (event.target.closest('[id$="detail-sort-trigger"]')) {
+          event.stopPropagation();
+          setEditMode(false);
+          toggleSort(!sortPanelLocal.classList.contains('active'));
+        }
+        if (event.target.closest('[id$="price-filter-trigger"]')) {
+          event.stopPropagation();
+          togglePrice(!pricePanel.classList.contains('active'));
+        }
+        if (event.target.closest('[id$="detail-edit-trigger"]')) setEditMode(true);
+        if (event.target.closest('[id$="detail-select-all"]')) {
+          const visible = visibleCards();
+          const allSelected = visible.length > 0 && visible.every((card) => selectedIds.has(card.dataset.merchantId));
+          visible.forEach((card) => toggleSelect(card, !allSelected));
+          updateSelection();
+        }
+        if (event.target.closest('[id$="detail-edit-done"]')) setEditMode(false);
+        if (event.target.closest('[id$="detail-delete-selected"]')) showToast(`删除${selectedIds.size}家商户`);
+        if (event.target.closest('[id$="detail-share-selected"]')) showToast(`分享${selectedIds.size}家商户`);
+        if (event.target.closest('.guest-add-selected')) {
+          event.stopPropagation();
+          q('.guest-album-sheet-mask')?.classList.add('active');
+        }
+        if (event.target.classList.contains('guest-album-sheet-mask')) {
+          event.stopPropagation();
+          closeGuestAlbumSheet(false);
+        }
+        if (event.target.closest('.guest-album-multi')) {
+          event.stopPropagation();
+          const sheet = q('.guest-album-sheet');
+          const multi = event.target.closest('.guest-album-multi');
+          sheet.classList.toggle('is-multi');
+          multi.textContent = sheet.classList.contains('is-multi') ? '取消' : '多选';
+          if (!sheet.classList.contains('is-multi')) {
+            qa('.guest-album-row.selected').forEach((row) => row.classList.remove('selected'));
+          }
+          updateGuestAlbumAddState();
+        }
+        const albumRow = event.target.closest('.guest-album-row');
+        if (albumRow) {
+          event.stopPropagation();
+          const sheet = q('.guest-album-sheet');
+          if (albumRow.classList.contains('new')) {
+            showToast('新建专辑');
+          } else if (sheet.classList.contains('is-multi')) {
+            albumRow.classList.toggle('selected');
+            updateGuestAlbumAddState();
+          } else {
+            closeGuestAlbumSheet(true);
+          }
+        }
+        if (event.target.closest('.guest-album-add')) {
+          event.stopPropagation();
+          closeGuestAlbumSheet(true);
+        }
+        if (event.target.closest('[id$="detail-popup-close"]')) closePopup();
+        const sortOption = event.target.closest('.sort-option');
+        if (sortOption) applyGuestSort(sortOption.dataset.sort);
+        if (event.target.closest('[id$="sort-reset"]')) resetSortLocal();
+        if (event.target.closest('[id$="sort-confirm"]')) toggleSort(false);
+        const priceChip = event.target.closest('.price-chip');
+        if (priceChip) {
+          qa('.price-chip').forEach((chip) => chip.classList.remove('active'));
+          priceChip.classList.add('active');
+          setRange(Number(priceChip.dataset.min), Number(priceChip.dataset.max));
+          applyFilter({ ...pendingRange });
+        }
+        const filterChip = event.target.closest('.filter-chip');
+        if (filterChip) {
+          filterChip.classList.toggle('active');
+          applyFilter(activeRange);
+        }
+        const tab = event.target.closest('.filter-side-tab');
+        if (tab) {
+          qa('.filter-side-tab').forEach((item) => item.classList.remove('active'));
+          tab.classList.add('active');
+          root.querySelector('#' + tab.dataset.filterSection)?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        }
+        if (event.target.closest('[id$="filter-reset"]')) resetFilterLocal();
+        if (event.target.closest('[id$="price-confirm"]')) {
+          applyFilter(activeRange);
+          togglePrice(false);
+        }
+        const marker = event.target.closest('[data-merchant-marker]');
+        if (marker) showPopup(Number(marker.dataset.merchantMarker), event);
+        const wantButton = event.target.closest('.guest-want-button');
+        if (wantButton) {
+          event.stopPropagation();
+          wantButton.classList.toggle('active');
+        }
+        const selector = event.target.closest('.merchant-select');
+        if (selector) {
+          event.stopPropagation();
+          toggleSelect(selector.closest('.restaurant-card'));
+        }
+        const card = event.target.closest('.restaurant-card');
+        if (card && !selector) {
+          if (editMode) toggleSelect(card);
+          else if (mapMode) showPopup(Number(card.dataset.merchantId));
+        }
+        const toastNode = event.target.closest('[data-toast]');
+        if (toastNode) {
+          toggleManage(false);
+          showToast(toastNode.dataset.toast);
+        }
+      });
+
+      let dragHandle = null;
+      function pointFromEvent(event) {
+        return event.touches?.[0] || event.changedTouches?.[0] || event;
+      }
+      function valueFromPoint(point) {
+        const rect = priceRangeLocal.querySelector('.price-track').getBoundingClientRect();
+        return Math.min(1, Math.max(0, (point.clientX - rect.left) / rect.width)) * 400;
+      }
+      function startHandle(handle, event, pointerId = 'mouse') {
+        event.preventDefault();
+        event.stopPropagation();
+        dragHandle = { handle, pointerId };
+      }
+      function moveHandle(event, pointerId = 'mouse') {
+        if (!dragHandle || dragHandle.pointerId !== pointerId) return;
+        event.preventDefault();
+        const value = valueFromPoint(pointFromEvent(event));
+        if (dragHandle.handle === priceMin) setRange(value, pendingRange.max);
+        else setRange(pendingRange.min, value);
+      }
+      function finishHandle(event, pointerId = 'mouse') {
+        if (!dragHandle || dragHandle.pointerId !== pointerId) return;
+        event.preventDefault();
+        dragHandle = null;
+        applyFilter({ ...pendingRange });
+      }
+      [priceMin, priceMax].forEach((handle) => {
+        handle.addEventListener('pointerdown', (event) => {
+          startHandle(handle, event, event.pointerId);
+          handle.setPointerCapture(event.pointerId);
+        });
+        handle.addEventListener('pointermove', (event) => moveHandle(event, event.pointerId));
+        handle.addEventListener('pointerup', (event) => finishHandle(event, event.pointerId));
+        handle.addEventListener('pointercancel', (event) => finishHandle(event, event.pointerId));
+      });
+
+      syncWalk();
+      updateWalk(walkSize);
+      updateRangeUI();
+      updateSelection();
+
+      return {
+        resetTransientState() {
+          setMapMode(false);
+          setEditMode(false);
+          toggleSort(false);
+          togglePrice(false);
+          toggleManage(false);
+        }
+      };
+    }
+
+    profileScroll.addEventListener('scroll', () => {
+      stickyTitle.style.opacity = Math.min(1, profileScroll.scrollTop / 100).toFixed(2);
+    }, { passive: true });
+
+    document.getElementById('open-album').addEventListener('click', () => setScreen('album'));
+    document.getElementById('back-profile').addEventListener('click', () => setScreen('profile'));
+    document.getElementById('open-detail').addEventListener('click', () => setScreen('detail'));
+    document.getElementById('open-detail').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        setScreen('detail');
+      }
+    });
+    document.getElementById('detail-back-list').addEventListener('click', () => setScreen('album'));
+    detailShareTrigger.addEventListener('click', () => {
+      shareReturnScreen = 'detail';
+      setScreen('share');
+    });
+    document.getElementById('share-back-detail').addEventListener('click', () => setScreen(shareReturnScreen));
+    document.getElementById('share-wechat-trigger').addEventListener('click', () => setScreen('wechat'));
+    document.getElementById('wechat-back-share').addEventListener('click', () => setScreen('share'));
+    document.getElementById('wechat-poster-hotspot').addEventListener('click', () => {
+      ensureGuestDetailScreen();
+      setScreen('guestDetail');
+    });
+    document.querySelector('.detail-map-back').addEventListener('click', () => setDetailMapMode(false));
+    detailMapToggle.addEventListener('click', () => {
+      toggleManageMenu(false);
+      toggleSortPanel(false);
+      togglePricePanel(false);
+      setDetailMapMode(!detailMapMode);
+    });
+    detailSortTrigger.addEventListener('click', (event) => {
+      event.stopPropagation();
+      setDetailEditMode(false);
+      toggleSortPanel(!sortPanel.classList.contains('active'));
+    });
+    detailEditTrigger.addEventListener('click', (event) => {
+      event.stopPropagation();
+      setDetailEditMode(true);
+    });
+    detailSelectAll.addEventListener('click', () => {
+      const visibleCards = visibleRestaurantCards();
+      const allVisibleSelected = visibleCards.length > 0 && visibleCards.every((card) => selectedMerchantIds.has(card.dataset.merchantId));
+      visibleCards.forEach((card) => toggleMerchantSelection(card, !allVisibleSelected));
+      updateMerchantSelectionUI();
+    });
+    detailEditDone.addEventListener('click', () => setDetailEditMode(false));
+    detailDeleteSelected.addEventListener('click', () => showToast(`删除${selectedMerchantIds.size}家商户`));
+    detailShareSelected?.addEventListener('click', () => showToast(`分享${selectedMerchantIds.size}家商户`));
+    detailManageTrigger.addEventListener('click', (event) => {
+      event.stopPropagation();
+      togglePricePanel(false);
+      toggleSortPanel(false);
+      toggleManageMenu(!detailManageMenu.classList.contains('active'));
+    });
+    detailManageMenu.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (event.target.closest('button')) {
+        toggleManageMenu(false);
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (!detailManageMenu.contains(event.target) && event.target !== detailManageTrigger) {
+        toggleManageMenu(false);
+      }
+    });
+    document.getElementById('detail-popup-close').addEventListener('click', closeDetailPopup);
+    syncWalkRadiusToUserMarker();
+    updateWalkRadiusSize(walkRadiusSize);
+    updatePriceRangeUI();
+    ensureMerchantSelectors();
+    updateRankCrowns();
+    enableUserMarkerDrag();
+    enableWalkRadiusResize();
+    enablePriceFilter();
+    detailMap.addEventListener('click', (event) => {
+      if (event.target.id === 'detail-map' || event.target.id === 'detail-map-bg' || event.target.closest('.map-bg')) {
+        closeDetailPopup();
+      }
+    });
+    document.querySelectorAll('[data-merchant-marker]').forEach((marker) => {
+      marker.addEventListener('click', (event) => showDetailPopup(Number(marker.dataset.merchantMarker), event));
+    });
+    document.querySelectorAll('.restaurant-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        if (detailEditMode) {
+          toggleMerchantSelection(card);
+          return;
+        }
+        if (detailMapMode) {
+          showDetailPopup(Number(card.dataset.merchantId));
+        }
+      });
+    });
+    document.querySelectorAll('.sort-option').forEach((option) => {
+      option.addEventListener('click', () => applySort(option.dataset.sort));
+    });
+    sortReset.addEventListener('click', resetSort);
+    sortConfirm.addEventListener('click', () => toggleSortPanel(false));
+    document.querySelectorAll('.filter-side-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.filter-side-tab').forEach((item) => item.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.filterSection)?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+    });
+    document.querySelectorAll('.filter-chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+        priceFilterTrigger.classList.add('active');
+        applyPriceFilter(appliedPriceRange);
+      });
+    });
+    filterReset.addEventListener('click', resetFilters);
+    document.querySelectorAll('.detail-filter').forEach((filter) => {
+      filter.addEventListener('click', () => {
+        if (filter === priceFilterTrigger || filter === detailSortTrigger || filter === detailEditTrigger) return;
+        filter.classList.toggle('active');
+        showToast(filter.textContent.replace('⌄', ''));
+      });
+    });
+
+    document.querySelectorAll('[data-toast]').forEach((node) => {
+      node.addEventListener('click', () => showToast(node.dataset.toast));
+    });
+
+    document.querySelectorAll('.category-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.category-tab').forEach((item) => item.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+    setScreen('profile');
+  </script>
+</body>
+</html>

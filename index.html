@@ -1,0 +1,2407 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>心选专辑_主态视角</title>
+<!-- Tailwind CSS -->
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<!-- Iconify 图标库 -->
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+        @font-face {
+            font-family: 'PingFang SC';
+            src: local('PingFang SC'), local('sans-serif');
+        }
+        body {
+            font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        /* 隐藏滚动条 */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 手机壳阴影增强 */
+        .iphone-shadow {
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.25), 0 30px 60px -30px rgba(0,0,0,0.3);
+        }
+        .cold-start-modal-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.42);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 220ms ease;
+        }
+        .cold-start-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .cold-start-modal-image {
+            width: min(330px, 94%);
+            max-height: 78%;
+            object-fit: contain;
+            display: block;
+            transform: scale(0.96);
+            transition: transform 220ms ease;
+        }
+        .cold-start-modal-overlay.show .cold-start-modal-image {
+            transform: scale(1);
+        }
+        .cold-start-modal-card {
+            position: relative;
+            width: min(330px, 94%);
+            max-height: 78%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cold-start-modal-card .cold-start-modal-image {
+            width: 100%;
+            max-height: 100%;
+        }
+        .experience-hotspot {
+            position: absolute;
+            left: 25%;
+            right: 25%;
+            bottom: 10%;
+            height: 11%;
+            border: 0;
+            padding: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+        .create-album-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 130;
+            display: none;
+            align-items: flex-end;
+            background: rgba(0, 0, 0, 0.45);
+        }
+        .create-album-overlay.show {
+            display: flex;
+        }
+        .create-album-sheet {
+            width: 100%;
+            border-radius: 20px 20px 0 0;
+            background: #f7f8fa;
+            transform: translateY(100%);
+            transition: transform 260ms ease;
+            overflow: hidden;
+        }
+        .create-album-overlay.show .create-album-sheet {
+            transform: translateY(0);
+        }
+        .create-album-panel {
+            padding: 20px 16px 14px;
+        }
+        .create-album-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+        .create-album-title {
+            margin: 0;
+            color: #050505;
+            font-size: 18px;
+            line-height: 23px;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+        .create-album-done {
+            border: 0;
+            padding: 0;
+            background: transparent;
+            color: #ff9a7a;
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 800;
+        }
+        .album-title-field {
+            height: 62px;
+            border-radius: 16px;
+            background: #fff;
+            display: grid;
+            grid-template-columns: 1fr 34px;
+            align-items: center;
+            padding: 0 14px 0 16px;
+            margin-bottom: 20px;
+        }
+        .album-title-input {
+            width: 100%;
+            min-width: 0;
+            border: 0;
+            outline: 0;
+            color: #111;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 520;
+            caret-color: #3b73ff;
+            background: transparent;
+        }
+        .album-title-input::placeholder {
+            color: #a9adb5;
+        }
+        .album-title-count {
+            color: #a9adb5;
+            font-size: 11px;
+            line-height: 16px;
+            text-align: right;
+            font-weight: 650;
+        }
+        .private-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 0;
+            padding: 0;
+            background: transparent;
+            color: #5c6068;
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 650;
+        }
+        .private-box {
+            width: 22px;
+            height: 22px;
+            border-radius: 8px;
+            border: 2px solid #dfe3ea;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 900;
+        }
+        .private-toggle.checked .private-box {
+            background: #ff6d01;
+            border-color: #ff6d01;
+        }
+        .private-toggle.checked .private-box::before {
+            content: "✓";
+        }
+        .mock-keyboard {
+            background: #d1d5dd;
+            padding: 12px 8px 18px;
+            border-radius: 24px 24px 0 0;
+        }
+        .keyboard-suggestions {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr) 30px;
+            gap: 4px;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #111;
+            font-size: 16px;
+            line-height: 24px;
+            text-align: center;
+        }
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 7px;
+            margin-bottom: 8px;
+        }
+        .key {
+            height: 44px;
+            min-width: 32px;
+            flex: 1;
+            border-radius: 8px;
+            background: #fff;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            line-height: 24px;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+        }
+        .key.wide {
+            flex: 2.8;
+            color: #d0d2d7;
+            font-size: 13px;
+        }
+        .key.gray {
+            background: #eef0f4;
+            font-size: 13px;
+        }
+        .blank-album-page {
+            position: absolute;
+            inset: 0;
+            z-index: 150;
+            display: none;
+            background: #f5f5f5;
+            color: #111827;
+            overflow: hidden;
+            font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        .blank-album-page.show {
+            display: flex;
+            flex-direction: column;
+        }
+        .blank-status {
+            height: 42px;
+            padding: 12px 22px 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            color: #111827;
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 800;
+            background: #f5f5f5;
+        }
+        .blank-status-icons {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #111827;
+        }
+        .blank-detail-header {
+            position: relative;
+            flex: 0 0 auto;
+            padding: 8px 14px 12px;
+            background: #f5f5f5;
+        }
+        .blank-titlebar {
+            min-height: 96px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .blank-back {
+            width: 24px;
+            height: 28px;
+            border: 0;
+            padding: 0;
+            background: transparent;
+            color: #111827;
+            font-size: 28px;
+            line-height: 1;
+        }
+        .blank-album-summary {
+            min-width: 0;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .blank-album-cover {
+            width: 78px;
+            height: 78px;
+            flex: 0 0 78px;
+            border-radius: 14px;
+            background:
+                linear-gradient(135deg, rgba(255,109,1,0.22), rgba(255,255,255,0.2)),
+                linear-gradient(135deg, #f3f4f6, #e8ebf0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,109,1,0.58);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        }
+        .blank-album-cover iconify-icon {
+            font-size: 30px;
+        }
+        .blank-album-copy {
+            min-width: 0;
+            align-self: stretch;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .blank-album-title-row {
+            min-width: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .blank-album-title-row h1 {
+            margin: 0;
+            min-width: 0;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #111827;
+            font-size: 18px;
+            line-height: 24px;
+            font-weight: 850;
+            letter-spacing: 0;
+        }
+        .blank-title-actions {
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        .blank-icon-button {
+            width: 26px;
+            height: 26px;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .blank-icon-button iconify-icon {
+            font-size: 20px;
+        }
+        .blank-album-copy p {
+            margin: 7px 0 0;
+            color: #9ca3af;
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            font-size: 12px;
+            line-height: 18px;
+            letter-spacing: 0;
+        }
+        .blank-album-meta {
+            margin-top: auto;
+            color: #9ca3af;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 11px;
+            line-height: 14px;
+        }
+        .blank-detail-nav {
+            position: relative;
+            flex: 0 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) 38px;
+            gap: 6px;
+            padding: 0 14px 10px;
+            background: #f5f5f5;
+            z-index: 4;
+        }
+        .success-album-page .blank-detail-nav {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) 38px;
+        }
+        .blank-filter,
+        .blank-map-toggle {
+            min-width: 0;
+            height: 30px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(235, 236, 238, 0.72);
+            color: #333;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            font-size: 11px;
+            line-height: 15px;
+            font-weight: 650;
+            white-space: nowrap;
+        }
+        .blank-filter iconify-icon,
+        .blank-map-toggle iconify-icon {
+            font-size: 14px;
+        }
+        .blank-filter span {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .blank-map-toggle {
+            background: #ff6d01;
+            color: #fff;
+            padding: 0;
+        }
+        .blank-filter:disabled,
+        .blank-map-toggle:disabled {
+            color: #b9bec8;
+            background: rgba(235, 236, 238, 0.62);
+        }
+        .blank-content {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
+            padding: 0 14px 18px;
+            background: #f5f5f5;
+        }
+        .blank-empty-card {
+            height: 100%;
+            min-height: 360px;
+            border-radius: 18px;
+            border: 1px dashed #dde1e8;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #9ca3af;
+            padding: 24px;
+        }
+        .blank-empty-card iconify-icon {
+            color: #ffb485;
+            font-size: 44px;
+            margin-bottom: 10px;
+        }
+        .blank-empty-card h2 {
+            margin: 0;
+            color: #4b5563;
+            font-size: 16px;
+            line-height: 22px;
+            font-weight: 850;
+        }
+        .blank-empty-card p {
+            margin: 7px 0 0;
+            color: #9ca3af;
+            font-size: 12px;
+            line-height: 18px;
+            font-weight: 520;
+        }
+        .add-place-button {
+            width: 128px;
+            height: 44px;
+            border: 0;
+            border-radius: 999px;
+            background: #ff6d01;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 850;
+            box-shadow: 0 8px 18px rgba(255, 109, 1, 0.24);
+        }
+        .add-place-button iconify-icon {
+            color: #fff;
+            font-size: 19px;
+            margin: 0;
+        }
+        .add-place-hint {
+            width: 210px;
+            margin-top: 12px;
+            color: #9ca3af;
+            font-size: 12px;
+            line-height: 18px;
+            font-weight: 520;
+        }
+        .add-place-page,
+        .success-album-page {
+            position: absolute;
+            inset: 0;
+            z-index: 170;
+            display: none;
+            flex-direction: column;
+            background: #f5f6f8;
+            color: #111827;
+            overflow: hidden;
+            font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        .add-place-page.show,
+        .success-album-page.show {
+            display: flex;
+        }
+        .add-place-head {
+            flex: 0 0 auto;
+            padding: 13px 16px 10px;
+            display: grid;
+            grid-template-columns: 42px 1fr 42px;
+            align-items: center;
+            background: #f5f6f8;
+        }
+        .add-place-head h1 {
+            margin: 0;
+            text-align: center;
+            color: #111827;
+            font-size: 17px;
+            line-height: 24px;
+            font-weight: 850;
+            letter-spacing: 0;
+        }
+        .add-place-close {
+            border: 0;
+            background: transparent;
+            color: #8b95a1;
+            font-size: 13px;
+            line-height: 18px;
+            text-align: right;
+        }
+        .add-place-search {
+            margin: 0 18px 14px;
+            height: 34px;
+            border-radius: 999px;
+            background: #eceff3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            color: #9aa2ad;
+            font-size: 12px;
+            line-height: 16px;
+            font-weight: 560;
+        }
+        .add-place-search iconify-icon {
+            font-size: 15px;
+        }
+        .add-source-grid {
+            padding: 0 18px 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .add-source-card {
+            min-height: 58px;
+            border: 0;
+            border-radius: 12px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px;
+            text-align: left;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        }
+        .add-source-card iconify-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: #ff6d01;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex: 0 0 auto;
+        }
+        .add-source-card strong {
+            display: block;
+            color: #111827;
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 850;
+        }
+        .add-source-card span {
+            display: block;
+            margin-top: 1px;
+            color: #9ca3af;
+            font-size: 10px;
+            line-height: 14px;
+            font-weight: 520;
+        }
+        .add-place-tabs {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 0 18px 8px;
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 18px;
+            font-weight: 760;
+        }
+        .add-place-tab {
+            position: relative;
+            border: 0;
+            background: transparent;
+            padding: 0 0 6px;
+            color: inherit;
+            font: inherit;
+        }
+        .add-place-tab.active {
+            color: #ff6d01;
+        }
+        .add-place-tab.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            border-radius: 999px;
+            background: #ff6d01;
+        }
+        .place-list {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 0 14px 18px;
+        }
+        .place-card {
+            position: relative;
+            min-height: 70px;
+            margin-bottom: 10px;
+            border-radius: 13px;
+            background: #fff;
+            display: grid;
+            grid-template-columns: 54px 1fr 34px;
+            gap: 10px;
+            align-items: center;
+            padding: 9px 9px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        }
+        .place-card.long {
+            grid-template-columns: 58px 1fr 34px;
+            align-items: start;
+        }
+        .place-thumb {
+            width: 54px;
+            height: 54px;
+            border-radius: 9px;
+            background: #eef0f4;
+            overflow: hidden;
+            position: relative;
+            object-fit: cover;
+        }
+        .place-info {
+            min-width: 0;
+            padding-right: 2px;
+        }
+        .place-info h2 {
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #111827;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 850;
+        }
+        .place-info p {
+            margin: 2px 0 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #7b8491;
+            font-size: 11px;
+            line-height: 16px;
+            font-weight: 520;
+        }
+        .place-rating-line {
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 0;
+        }
+        .place-rating-line .stars span {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            font-size: 8px;
+            line-height: 12px;
+        }
+        .place-rating-score {
+            color: #ff6433;
+            font-size: 12px;
+            line-height: 15px;
+            font-weight: 850;
+        }
+        .place-category {
+            min-width: 0;
+            color: #7b8491;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 11px;
+            line-height: 15px;
+            font-weight: 520;
+        }
+        .place-info .place-note {
+            color: #4b5563;
+        }
+        .place-add {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #d7dce4;
+            border-radius: 7px;
+            background: #fff;
+            color: #ff6d01;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            align-self: center;
+        }
+        .place-add iconify-icon {
+            font-size: 17px;
+        }
+        .success-content {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 0 14px 18px;
+            background: #f5f5f5;
+        }
+        .success-content .restaurant-card {
+            position: relative;
+            padding: 20px;
+            border: 1px solid #f1f1f1;
+            border-radius: 24px;
+            background: #fff;
+            box-shadow: 0 1px 5px rgba(15, 23, 42, 0.04);
+        }
+        .restaurant-head {
+            margin-bottom: 5px;
+        }
+        .restaurant-head h2 {
+            margin: 0;
+            color: #000;
+            font-size: 20px;
+            line-height: 26px;
+            font-weight: 850;
+        }
+        .stars {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            line-height: 1;
+            letter-spacing: 0;
+        }
+        .stars span {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            background: #ff6433;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            line-height: 15px;
+            font-weight: 900;
+        }
+        .stars .gray {
+            background: #d7d9de;
+            color: #fff;
+        }
+        .restaurant-meta {
+            margin-bottom: 6px;
+            color: #111;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            line-height: 19px;
+        }
+        .restaurant-rating-left {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #7a7a7a;
+            white-space: nowrap;
+        }
+        .rating-score {
+            color: #ff6d01;
+            font-size: 15px;
+            line-height: 19px;
+            font-weight: 800;
+        }
+        .review-count {
+            color: #666;
+            font-size: 12px;
+            line-height: 18px;
+            font-weight: 520;
+        }
+        .restaurant-meta strong {
+            color: #111;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+        .restaurant-category-line {
+            margin-bottom: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 7px;
+            color: #777;
+            font-size: 13px;
+            line-height: 20px;
+            font-weight: 560;
+        }
+        .restaurant-category-line .rank-tag {
+            max-width: 100%;
+            padding: 2px 7px 2px 5px;
+            border-radius: 0;
+            background: #ffeadb;
+            color: #b65a28;
+            font-size: 12px;
+            line-height: 18px;
+            font-weight: 680;
+            white-space: nowrap;
+        }
+        .restaurant-category-line .rank-tag::before {
+            content: "榜";
+            margin-right: 5px;
+            padding: 1px 3px;
+            background: rgba(255, 112, 55, 0.16);
+            color: #ff6433;
+            font-weight: 850;
+        }
+        .restaurant-tags {
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .restaurant-tags span {
+            padding: 2px 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            color: #6b7280;
+            background: #fff;
+            font-size: 10px;
+            line-height: 16px;
+        }
+        .dish-grid {
+            margin-bottom: 16px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .detail-dish {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #f3f4f6;
+        }
+        .detail-dish img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .dish-label {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            max-width: 100%;
+            padding: 2px 6px;
+            border-top-left-radius: 3px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.55);
+            font-size: 11px;
+            line-height: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .recommend-row {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .recommend-row img {
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            object-fit: cover;
+            background: #e5e7eb;
+        }
+        .recommend-row span {
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .review-copy {
+            margin-bottom: 16px;
+            color: #1f2937;
+            font-size: 14px;
+            line-height: 20px;
+        }
+        .review-copy .review-date {
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            color: #9ca3af;
+            font-size: 12px;
+            line-height: 16px;
+        }
+        .review-copy .review-date strong {
+            margin-left: 12px;
+            color: #4b5563;
+            font-weight: 700;
+        }
+        .review-copy p {
+            margin: 0;
+        }
+        .detail-divider {
+            height: 1px;
+            margin-bottom: 12px;
+            background: #f3f4f6;
+        }
+        .been-row {
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        .been-friends {
+            display: flex;
+            align-items: center;
+        }
+        .friend-stack {
+            display: flex;
+            margin-left: 8px;
+        }
+        .friend-stack img {
+            width: 24px;
+            height: 24px;
+            margin-left: -8px;
+            border: 2px solid #fff;
+            border-radius: 999px;
+            object-fit: cover;
+            background: #f3f4f6;
+        }
+        .friend-stack img:first-child {
+            margin-left: 0;
+        }
+        .rank-chip {
+            display: inline-flex;
+            align-items: center;
+            max-width: 128px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: #fff4e8;
+            color: #c46a19;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 10px;
+            line-height: 15px;
+            font-weight: 650;
+        }
+        .success-tags {
+            margin-top: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .success-tags span {
+            padding: 2px 5px;
+            border-radius: 4px;
+            background: #f5f6f8;
+            color: #6b7280;
+            font-size: 10px;
+            line-height: 14px;
+            font-weight: 560;
+        }
+        .success-extra {
+            margin-top: 5px;
+            color: #7b8491;
+            font-size: 10px;
+            line-height: 15px;
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .confetti-toast {
+            position: absolute;
+            left: 50%;
+            top: 88px;
+            z-index: 260;
+            display: none;
+            transform: translateX(-50%);
+            min-width: 128px;
+            border-radius: 999px;
+            background: rgba(17, 24, 39, 0.88);
+            color: #fff;
+            padding: 9px 14px;
+            text-align: center;
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 760;
+            box-shadow: 0 12px 26px rgba(15,23,42,0.18);
+        }
+        .confetti-toast.show {
+            display: block;
+            animation: toast-pop 900ms ease both;
+        }
+        .success-filter-pop {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 204px;
+            z-index: 190;
+            display: none;
+            background: rgba(255,255,255,0.99);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+            backdrop-filter: blur(16px);
+            overflow: hidden;
+        }
+        .success-filter-pop.show {
+            display: block;
+        }
+        #success-sort-panel {
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+        #success-filter-panel {
+            bottom: 0;
+        }
+        .success-sort-options {
+            padding: 14px 24px 10px;
+        }
+        .success-sort-option {
+            width: 100%;
+            min-height: 38px;
+            border: 0;
+            background: transparent;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 650;
+        }
+        .success-sort-option.active {
+            color: #ff6d01;
+            font-weight: 850;
+        }
+        .success-filter-body {
+            height: 330px;
+            display: flex;
+            min-height: 0;
+        }
+        .success-filter-sidebar {
+            width: 92px;
+            flex: 0 0 92px;
+            padding: 6px 0;
+            background: #f6f6f6;
+            overflow-y: auto;
+        }
+        .success-filter-side-tab {
+            width: 100%;
+            min-height: 42px;
+            border: 0;
+            border-left: 3px solid transparent;
+            padding: 0 10px 0 16px;
+            background: transparent;
+            color: #404348;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            font-size: 13px;
+            line-height: 17px;
+            font-weight: 650;
+        }
+        .success-filter-side-tab.active {
+            border-left-color: #ff6d01;
+            background: #fff;
+            color: #ff6d01;
+            font-weight: 850;
+        }
+        .success-filter-main {
+            flex: 1;
+            min-width: 0;
+            padding: 16px 14px;
+            overflow-y: auto;
+        }
+        .success-filter-section {
+            margin-bottom: 22px;
+        }
+        .success-filter-section h2 {
+            margin: 0 0 14px;
+            color: #111;
+            font-size: 16px;
+            line-height: 22px;
+            font-weight: 850;
+        }
+        .success-filter-options {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 9px;
+        }
+        .success-filter-chip {
+            height: 36px;
+            min-width: 0;
+            border: 0;
+            border-radius: 999px;
+            background: #f5f6f8;
+            color: #333;
+            font-size: 12px;
+            line-height: 18px;
+            font-weight: 650;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .success-filter-chip.active {
+            color: #ff6d01;
+            background: #fff1e8;
+        }
+        .success-price-range-box {
+            margin-top: 16px;
+            padding: 12px 10px 16px;
+            border-radius: 12px;
+            background: #fafafa;
+        }
+        .success-price-range-labels {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            color: #9ca3af;
+            font-size: 11px;
+            line-height: 15px;
+            font-weight: 650;
+        }
+        .success-price-range {
+            position: relative;
+            height: 28px;
+        }
+        .success-price-track {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 13px;
+            height: 3px;
+            border-radius: 999px;
+            background: #e5e7eb;
+        }
+        .success-price-track-active {
+            position: absolute;
+            left: 18%;
+            right: 20%;
+            top: 13px;
+            height: 3px;
+            border-radius: 999px;
+            background: #ff6d01;
+        }
+        .success-price-handle {
+            position: absolute;
+            top: 4px;
+            width: 38px;
+            height: 20px;
+            padding: 0;
+            border: 1px solid rgba(255,109,1,.22);
+            border-radius: 999px;
+            background: #fff;
+            color: #ff6d01;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            line-height: 14px;
+            font-weight: 800;
+            box-shadow: 0 3px 9px rgba(15,23,42,.08);
+            cursor: grab;
+            touch-action: none;
+        }
+        .success-price-handle.min {
+            left: 12%;
+        }
+        .success-price-handle.max {
+            right: 12%;
+        }
+        .success-filter-footer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 10px 14px 14px;
+            border-top: 1px solid #f0f1f3;
+        }
+        .success-filter-footer button {
+            height: 36px;
+            border: 0;
+            border-radius: 999px;
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 800;
+        }
+        .success-reset {
+            color: #4b5563;
+            background: #f1f2f4;
+        }
+        .success-confirm {
+            color: #fff;
+            background: #ff6d01;
+        }
+        .success-edit-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 0 14px 10px;
+            background: #f5f5f5;
+        }
+        .success-album-page.is-edit-mode .blank-detail-nav {
+            display: none;
+        }
+        .success-album-page.is-edit-mode .success-edit-bar {
+            display: flex;
+        }
+        .success-album-page.is-edit-mode .success-content {
+            padding-left: 54px;
+            padding-bottom: 104px;
+            background: #f5f6f7;
+        }
+        .success-album-page.is-edit-mode .success-content .restaurant-card {
+            border-color: transparent;
+            border-radius: 20px;
+            box-shadow: none;
+        }
+        .success-edit-bar button {
+            height: 30px;
+            border: 0;
+            border-radius: 999px;
+            padding: 0 14px;
+            font-size: 12px;
+            line-height: 16px;
+            font-weight: 800;
+        }
+        .success-select-all {
+            color: #4b5563;
+            background: #eceef2;
+        }
+        .success-edit-done {
+            color: #fff;
+            background: #ff6d01;
+        }
+        .success-merchant-select {
+            position: absolute;
+            top: 16px;
+            left: 14px;
+            z-index: 2;
+            display: none;
+            width: 22px;
+            height: 22px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.95);
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .success-album-page.is-edit-mode .success-merchant-select {
+            display: flex;
+            left: -38px;
+            top: 20px;
+        }
+        .restaurant-card.is-selected .success-merchant-select {
+            border-color: #ff6d01;
+            background: #ff6d01;
+        }
+        .success-edit-actions {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 18px;
+            z-index: 210;
+            display: none;
+            gap: 10px;
+        }
+        .success-album-page.is-edit-mode.has-selection .success-edit-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+        .success-edit-actions button {
+            height: 44px;
+            border: 0;
+            border-radius: 999px;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 850;
+        }
+        .success-delete {
+            color: #4b5563;
+            background: #eceef2;
+        }
+        .success-map-view {
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 144px;
+            bottom: 0;
+            z-index: 5;
+            background: #eef2f3;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+            overflow: hidden;
+        }
+        .success-map-view img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(0.1) brightness(1.05);
+        }
+        .success-map-marker {
+            position: absolute;
+            z-index: 10;
+            width: 28px;
+            height: 28px;
+            border: 2px solid #fff;
+            border-radius: 999px;
+            background: #fff;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,.15);
+            transform: translate(-50%, -50%);
+        }
+        .success-user-marker {
+            position: absolute;
+            z-index: 12;
+            left: 186px;
+            top: 334px;
+            width: 34px;
+            height: 34px;
+            border: 3px solid #fff;
+            border-radius: 999px;
+            overflow: hidden;
+            box-shadow: 0 5px 14px rgba(15,23,42,.2);
+            transform: translate(-50%, -50%);
+        }
+        .success-user-marker img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .success-walk-radius {
+            position: absolute;
+            left: 92px;
+            top: 158px;
+            width: 150px;
+            height: 150px;
+            border: 1.5px dashed rgba(255,109,1,.62);
+            border-radius: 999px;
+            background: rgba(255,109,1,.12);
+        }
+        .success-walk-radius span {
+            position: absolute;
+            left: 50%;
+            top: -14px;
+            transform: translateX(-50%);
+            padding: 3px 7px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.92);
+            color: #ff6d01;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .success-album-page.is-map-mode .success-map-view {
+            display: block;
+        }
+        .success-album-page.is-map-mode .blank-detail-nav {
+            position: relative;
+            z-index: 30;
+        }
+        .success-album-page.is-map-mode .success-filter-pop {
+            top: 144px;
+        }
+        .success-album-page.is-map-mode #success-sort-panel {
+            display: none;
+        }
+        .success-album-page.is-map-mode .success-content {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 20;
+            max-height: 280px;
+            padding: 16px 20px;
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            background: rgba(255,255,255,.98);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 -10px 30px rgba(0,0,0,.08);
+            overflow-y: auto;
+        }
+        .success-album-page.is-map-mode .success-content .restaurant-card {
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+        .success-album-page.is-map-mode .restaurant-tags,
+        .success-album-page.is-map-mode .restaurant-category-line,
+        .success-album-page.is-map-mode .dish-grid,
+        .success-album-page.is-map-mode .review-copy,
+        .success-album-page.is-map-mode .been-row,
+        .success-album-page.is-map-mode .detail-divider {
+            display: none;
+        }
+        .success-album-page.is-map-mode #success-map-trigger {
+            color: #fff;
+            background: #2563eb;
+        }
+        .my-new-badge {
+            display: none;
+            position: absolute;
+            top: -5px;
+            right: 20px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 5px;
+            border: 2px solid #fff;
+            border-radius: 999px;
+            background: #ff6d01;
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            line-height: 12px;
+            font-weight: 900;
+        }
+        .my-new-badge.show {
+            display: flex;
+        }
+        @keyframes toast-pop {
+            0% { opacity: 0; transform: translate(-50%, -8px) scale(.96); }
+            18%, 78% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -10px) scale(.98); }
+        }
+    </style>
+<link rel="preload" as="image" href="assets/cold-start-popup.jpg" fetchpriority="high"/>
+</head>
+<body>
+<!-- 手机容器 -->
+<div class="relative w-[375px] h-[812px] bg-white rounded-[45px] iphone-shadow overflow-hidden flex flex-col border-[8px] border-gray-900">
+<!-- 顶部状态栏 -->
+<div class="flex justify-between items-center px-8 pt-4 pb-2 text-[14px] font-semibold text-gray-900 z-50">
+<span>23:19</span>
+<div class="flex items-center space-x-1.5">
+<iconify-icon class="text-base" icon="mdi:car"></iconify-icon>
+<iconify-icon class="text-base" icon="material-symbols:signal-cellular-4-bar"></iconify-icon>
+<iconify-icon class="text-base" icon="material-symbols:wifi"></iconify-icon>
+<div class="w-6 h-3 border border-gray-900 rounded-sm p-[1px] relative">
+<div class="h-full bg-gray-900 w-2/3"></div>
+<div class="absolute -right-1 top-1 w-1 h-1 bg-gray-900 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- 固定头部区域 -->
+<div class="flex-none bg-white z-40">
+<!-- 标签栏 -->
+<div class="flex items-center px-4 py-2 space-x-6 overflow-x-auto hide-scrollbar text-[16px] text-gray-500 whitespace-nowrap">
+<span class="hover:text-black cursor-pointer">关注</span>
+<div class="relative flex items-center text-black font-bold">
+<span>上海</span>
+<iconify-icon class="text-xl" icon="mdi:menu-down"></iconify-icon>
+<div class="absolute -bottom-1 left-0 w-full h-0.5 bg-[#FF6B35]"></div>
+</div>
+<span class="hover:text-black cursor-pointer">附近</span>
+<span class="hover:text-black cursor-pointer">品质外卖</span>
+<span class="hover:text-black cursor-pointer">热点</span>
+<span class="hover:text-black cursor-pointer">周末去哪</span>
+</div>
+<!-- 搜索与签到区 -->
+<div class="flex items-center px-4 py-2 space-x-3">
+<!-- 签到按钮 -->
+<div class="flex flex-col items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#FFD700] to-[#FF8C00] text-white shadow-sm cursor-pointer hover:scale-105 transition-transform">
+<iconify-icon class="text-lg" icon="mdi:account-check"></iconify-icon>
+<span class="text-[9px] font-bold">签到</span>
+</div>
+<!-- 搜索框 -->
+<div class="flex-1 flex items-center bg-[#F5F5F5] rounded-full px-3 py-1.5 border border-[#FF6B35]/20">
+<iconify-icon class="text-[#FF6B35] text-xl" icon="mdi:scan-helper"></iconify-icon>
+<span class="ml-2 text-gray-600 flex-1 text-sm">夏朵餐厅</span>
+<iconify-icon class="text-gray-400 text-xl mr-2" icon="mdi:camera-outline"></iconify-icon>
+<button class="bg-[#FF6B35] text-white px-4 py-1 rounded-full text-sm font-medium">搜索</button>
+</div>
+</div>
+</div>
+<!-- 可滚动内容区 -->
+<div class="flex-1 overflow-y-auto hide-scrollbar bg-white">
+<!-- 功能分类图标 (2x5 Grid) -->
+<div class="grid grid-cols-5 gap-y-4 px-2 py-6">
+<!-- Row 1 -->
+<div class="flex flex-col items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+<iconify-icon class="text-[#FF6B35] text-2xl" icon="fluent:food-24-filled"></iconify-icon>
+</div>
+<span class="text-[12px] mt-1 text-gray-800">美食</span>
+</div>
+<div class="relative flex flex-col items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center group-hover:bg-pink-200 transition-colors">
+<iconify-icon class="text-[#E91E63] text-2xl" icon="mdi:gamepad-variant"></iconify-icon>
+</div>
+<span class="text-[12px] mt-1 text-gray-800">休闲玩乐</span>
+<div class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] px-1 rounded-full">看球赛</div>
+</div>
+<div class="flex flex-col items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+<iconify-icon class="text-[#2196F3] text-2xl" icon="material-symbols:hotel"></iconify-icon>
+</div>
+<span class="text-[12px] mt-1 text-gray-800">酒店民宿</span>
+</div>
+<div class="flex flex-col items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-cyan-100 flex items-center justify-center group-hover:bg-cyan-200 transition-colors">
+<iconify-icon class="text-[#00BCD4] text-2xl" icon="mdi:palm-tree"></iconify-icon>
+</div>
+<span class="text-[12px] mt-1 text-gray-800">景点游玩</span>
+</div>
+<div class="flex flex-col items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+<iconify-icon class="text-[#FF9800] text-2xl" icon="mdi:movie-open"></iconify-icon>
+</div>
+<span class="text-[12px] mt-1 text-gray-800">电影演出</span>
+</div>
+<!-- Row 2 -->
+<div class="flex flex-col items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+<iconify-icon class="text-[#9C27B0] text-2xl" icon="mdi:face-woman"></iconify-icon>
+</div>
+<span class="text-[12px] mt-1 text-gray-800">丽人美发</span>
+</div>
+<div class="flex flex-col items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition-colors">
+<iconify-icon class="text-[#F44336] text-2xl" icon="mdi:fire"></iconify-icon>
+</div>
+<span class="text-[12px] mt-1 text-gray-800 font-bold">特价团<span class="text-red-500 ml-0.5">省</span></span>
+</div>
+<div class="flex flex-col items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
+<iconify-icon class="text-[#FFC107] text-2xl" icon="mdi:beer"></iconify-icon>
+</div>
+<span class="text-[12px] mt-1 text-gray-800">酒吧</span>
+</div>
+<div class="flex flex-col items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center group-hover:bg-rose-200 transition-colors">
+<iconify-icon class="text-[#E91E63] text-2xl" icon="mdi:shopping"></iconify-icon>
+</div>
+<span class="text-[12px] mt-1 text-gray-800">商场购物</span>
+</div>
+<div class="flex flex-col items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center group-hover:bg-amber-200 transition-colors">
+<iconify-icon class="text-[#FF5722] text-2xl" icon="mdi:hot-tub"></iconify-icon>
+</div>
+<span class="text-[12px] mt-1 text-gray-800">洗浴汗蒸</span>
+</div>
+</div>
+<!-- 推荐榜单板块 -->
+<div class="grid grid-cols-2 gap-3 px-3 py-4 bg-gray-50/50">
+<!-- 点评榜单 -->
+<div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+<div class="flex justify-between items-center mb-2">
+<span class="font-bold text-sm">点评榜单</span>
+<div class="flex items-center text-[10px] text-gray-400">
+                            吃喝玩乐指南
+                            <iconify-icon icon="mdi:chevron-right"></iconify-icon>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<div class="relative w-12 h-12 rounded-md overflow-hidden bg-gray-100">
+<img alt="Delicious Yakitori grilled chicken skewers with Japanese sauce" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-07-10/173509afa8a642838ebf63405629db9e.jpg"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="text-[12px] font-bold truncate">鸟繁YAKITORI</div>
+<div class="bg-[#FFF5F2] text-[#FF6B35] text-[10px] px-1 rounded inline-block mt-0.5">热门榜第1名</div>
+<div class="text-[10px] text-gray-400 mt-0.5">4.4km</div>
+</div>
+</div>
+</div>
+<!-- 免费试 -->
+<div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+<div class="flex justify-between items-center mb-2">
+<span class="font-bold text-sm">免费试</span>
+<div class="flex items-center text-[10px] text-gray-400">
+                            今日42万个名额
+                            <iconify-icon icon="mdi:chevron-right"></iconify-icon>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<div class="relative w-12 h-12 rounded-md overflow-hidden bg-gray-100">
+<img alt="Hot pot restaurant night view with city lights background" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-07-10/23850ff501394925bf4a783b52eba62c.jpg"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="text-[12px] font-bold truncate">江锅·浦之星·重庆火</div>
+<div class="flex items-center mt-1">
+<span class="text-[#FF6B35] text-[12px] font-bold">¥0</span>
+<span class="text-gray-400 text-[9px] line-through ml-1">¥664</span>
+</div>
+<div class="text-[10px] text-gray-400 mt-0.5">9.4km</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 瀑布流内容区 -->
+<div class="px-3 py-4 grid grid-cols-2 gap-3">
+<!-- Card 1 -->
+<div class="bg-white rounded-xl overflow-hidden shadow-sm flex flex-col">
+<div class="relative aspect-[4/5] bg-gray-100">
+<img alt="Romantic fine dining restaurant interior with candlelit tables and luxury decor" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-07-10/c4254fe34b7d4ad5b6db99ce80ed7442.jpg"/>
+<div class="absolute bottom-2 left-2 flex items-center space-x-1 bg-black/40 px-2 py-0.5 rounded-full text-white text-[10px]">
+<iconify-icon icon="mdi:map-marker-outline"></iconify-icon>
+<span>新潮餐厅</span>
+</div>
+</div>
+<div class="p-2 flex-1">
+<h3 class="text-[13px] font-bold line-clamp-2 leading-tight">男朋友带我来的！很少用震撼来形容一家餐厅！</h3>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center space-x-1">
+<img alt="User avatar" class="w-5 h-5 rounded-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-06-26/30ed4b633c9940e987376b5ee0a166c4.jpg"/>
+<span class="text-[10px] text-gray-500">萤火虫吖</span>
+<span class="text-[10px] text-[#FF6B35] bg-[#FFF5F2] px-1 rounded">真探官</span>
+</div>
+<div class="flex items-center space-x-0.5 text-gray-400">
+<iconify-icon class="text-sm" icon="mdi:heart-outline"></iconify-icon>
+<span class="text-[10px]">59</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white rounded-xl overflow-hidden shadow-sm flex flex-col">
+<div class="relative aspect-[4/5] bg-gray-100">
+<img alt="Scenic city skyline view from a high-rise restaurant window at dusk" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-07-10/fd4ea855b7c24788baa7d39f65367d13.jpg"/>
+</div>
+<div class="p-2 flex-1">
+<h3 class="text-[13px] font-bold line-clamp-2 leading-tight">上海有自己的曼哈顿🍽️ (🤫不贵)</h3>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center space-x-1">
+<img alt="User avatar" class="w-5 h-5 rounded-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-06-26/c773338dee584d5a981b0b434ff44b30.jpg"/>
+<span class="text-[10px] text-gray-500">Claro次饱饱</span>
+</div>
+<div class="flex items-center space-x-0.5 text-gray-400">
+<iconify-icon class="text-sm" icon="mdi:heart-outline"></iconify-icon>
+<span class="text-[10px]">9</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 占位底部，防止被 Tab Bar 挡住内容 -->
+<div class="h-20"></div>
+</div>
+<!-- 底部导航栏 -->
+<div class="flex-none bg-white border-t border-gray-100 px-2 py-2 pb-6 z-50">
+<div class="flex items-center justify-between">
+<!-- Tab 1 -->
+<div class="flex flex-col items-center flex-1 text-[#FF6B35] cursor-pointer" onclick="setActiveTab(this)">
+<iconify-icon class="text-2xl" icon="mdi:home"></iconify-icon>
+<span class="text-[10px] font-bold mt-0.5">首页</span>
+</div>
+<!-- Tab 2 -->
+<div class="flex flex-col items-center flex-1 text-gray-400 cursor-pointer" onclick="setActiveTab(this)">
+<iconify-icon class="text-2xl" icon="mdi:map-search-outline"></iconify-icon>
+<span class="text-[10px] mt-0.5">地图</span>
+</div>
+<!-- Center Tab -->
+<div class="flex-1 flex justify-center -mt-8">
+<div class="w-12 h-12 bg-[#FF6B35] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-300 transform rotate-45">
+<iconify-icon class="text-3xl transform -rotate-45" icon="mdi:plus"></iconify-icon>
+</div>
+</div>
+<!-- Tab 3 -->
+<div class="relative flex flex-col items-center flex-1 text-gray-400 cursor-pointer" onclick="setActiveTab(this)">
+<iconify-icon class="text-2xl" icon="mdi:message-text-outline"></iconify-icon>
+<span class="text-[10px] mt-0.5">消息</span>
+<div class="absolute -top-1 right-2 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">16</div>
+</div>
+<!-- Tab 4 -->
+<div class="relative flex flex-col items-center flex-1 text-gray-400 cursor-pointer" id="my-tab">
+<iconify-icon class="text-2xl" icon="mdi:account-outline"></iconify-icon>
+<span class="text-[10px] mt-0.5">我的</span>
+<span class="my-new-badge" id="my-new-badge">1</span>
+</div>
+</div>
+</div>
+<!-- iOS 底部指示条 -->
+<div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-black rounded-full opacity-20 z-[60]"></div>
+<div class="cold-start-modal-overlay" id="cold-start-modal" aria-label="个人心选专辑上线弹窗">
+<div class="cold-start-modal-card">
+<img alt="个人心选专辑正式上线" class="cold-start-modal-image" src="assets/cold-start-popup.jpg" fetchpriority="high" decoding="async"/>
+<button class="experience-hotspot" id="experience-hotspot" type="button" aria-label="立即体验"></button>
+</div>
+</div>
+<div class="create-album-overlay" id="create-album-overlay" aria-label="创建我的心选专辑">
+<div class="create-album-sheet">
+<div class="create-album-panel">
+<div class="create-album-head">
+<h2 class="create-album-title">创建我的心选专辑</h2>
+<button class="create-album-done" id="create-album-done" type="button">完成</button>
+</div>
+<label class="album-title-field">
+<input class="album-title-input" id="album-title-input" maxlength="15" placeholder="输入新建专辑标题" type="text"/>
+<span class="album-title-count" id="album-title-count">15</span>
+</label>
+<button class="private-toggle" id="private-toggle" type="button" aria-pressed="false">
+<span class="private-box" aria-hidden="true"></span>
+<span>仅我自己可见</span>
+</button>
+</div>
+<div class="mock-keyboard" aria-hidden="true">
+<div class="keyboard-suggestions"><span>我</span><span>你</span><span>那</span><span>好</span><span>我们</span><span>这</span><span>但</span><span>⌄</span></div>
+<div class="keyboard-row"><span class="key">q</span><span class="key">w</span><span class="key">e</span><span class="key">r</span><span class="key">t</span><span class="key">y</span><span class="key">u</span><span class="key">i</span><span class="key">o</span><span class="key">p</span></div>
+<div class="keyboard-row" style="padding:0 22px;"><span class="key">a</span><span class="key">s</span><span class="key">d</span><span class="key">f</span><span class="key">g</span><span class="key">h</span><span class="key">j</span><span class="key">k</span><span class="key">l</span></div>
+<div class="keyboard-row"><span class="key gray">⇧</span><span class="key">z</span><span class="key">x</span><span class="key">c</span><span class="key">v</span><span class="key">b</span><span class="key">n</span><span class="key">m</span><span class="key gray">⌫</span></div>
+<div class="keyboard-row"><span class="key gray">123</span><span class="key gray">☺</span><span class="key wide">拼</span><span class="key gray">↩</span></div>
+</div>
+</div>
+</div>
+<div class="blank-album-page" id="blank-album-page" aria-label="空白专辑详情页">
+<div class="blank-status">
+<span>9:41</span>
+<span class="blank-status-icons">▮▮▮ 5G ▱</span>
+</div>
+<header class="blank-detail-header">
+<div class="blank-titlebar">
+<button class="blank-back" id="blank-home-back" type="button" aria-label="返回首页">‹</button>
+<div class="blank-album-summary">
+<div class="blank-album-cover" aria-hidden="true">
+<iconify-icon icon="mdi:heart-plus-outline"></iconify-icon>
+</div>
+<div class="blank-album-copy">
+<div class="blank-album-title-row">
+<h1 id="blank-album-title">我的心选专辑</h1>
+<div class="blank-title-actions">
+<button class="blank-icon-button" type="button" aria-label="分享"><iconify-icon icon="mdi:share-outline"></iconify-icon></button>
+<button class="blank-icon-button" type="button" aria-label="更多"><iconify-icon icon="mdi:dots-horizontal"></iconify-icon></button>
+</div>
+</div>
+<p>把想去、吃过、朋友推荐的好店整理到这里。</p>
+<div class="blank-album-meta">0家商户，刚刚创建</div>
+</div>
+</div>
+</div>
+</header>
+<nav class="blank-detail-nav" aria-label="空白专辑筛选">
+<button class="blank-filter" type="button" disabled><iconify-icon icon="mdi:tune-variant"></iconify-icon><span>筛选</span></button>
+<button class="blank-filter" type="button" disabled><iconify-icon icon="mdi:sort"></iconify-icon><span>排序</span></button>
+<button class="blank-filter" type="button" disabled><iconify-icon icon="mdi:playlist-edit"></iconify-icon><span>编辑</span></button>
+<button class="blank-map-toggle" type="button" aria-label="地图模式" disabled><iconify-icon icon="mdi:map-marker-radius-outline"></iconify-icon></button>
+</nav>
+<main class="blank-content">
+<section class="blank-empty-card">
+<button class="add-place-button" id="open-add-place" type="button"><iconify-icon icon="mdi:map-marker-plus-outline"></iconify-icon><span>添加地点</span></button>
+<div class="add-place-hint">那些让你心动的好地方，值得被你好好珍藏。</div>
+</section>
+</main>
+</div>
+<div class="add-place-page" id="add-place-page" aria-label="添加地点到专辑">
+<div class="add-place-head">
+<span></span>
+<h1>添加地点到专辑</h1>
+<button class="add-place-close" id="add-place-close" type="button">关闭</button>
+</div>
+<div class="add-place-search"><iconify-icon icon="mdi:magnify"></iconify-icon><span>搜索地点</span></div>
+<div class="add-source-grid">
+<button class="add-source-card" type="button">
+<iconify-icon icon="mdi:star"></iconify-icon>
+<span><strong>我的收藏</strong><span>36个地点</span></span>
+</button>
+<button class="add-source-card" type="button">
+<iconify-icon icon="mdi:bookmark-check"></iconify-icon>
+<span><strong>订阅专辑</strong><span>8个专辑</span></span>
+</button>
+</div>
+<div class="add-place-tabs" role="tablist">
+<button class="add-place-tab active" type="button" data-tab="checkin">打卡</button>
+<button class="add-place-tab" type="button" data-tab="review">评价</button>
+<button class="add-place-tab" type="button" data-tab="note">笔记</button>
+</div>
+<div class="place-list" id="place-list"></div>
+</div>
+<div class="success-album-page" id="success-album-page" aria-label="添加商户成功后的专辑详情页">
+<div class="blank-status">
+<span>9:41</span>
+<span class="blank-status-icons">▮▮▮ 5G ▱</span>
+</div>
+<header class="blank-detail-header">
+<div class="blank-titlebar">
+<button class="blank-back" id="success-home-back" type="button" aria-label="返回首页">‹</button>
+<div class="blank-album-summary">
+<div class="blank-album-cover" aria-hidden="true">
+<iconify-icon icon="mdi:heart-plus-outline"></iconify-icon>
+</div>
+<div class="blank-album-copy">
+<div class="blank-album-title-row">
+<h1 id="success-album-title">我的心选专辑</h1>
+<div class="blank-title-actions">
+<button class="blank-icon-button" type="button" aria-label="分享"><iconify-icon icon="mdi:share-outline"></iconify-icon></button>
+<button class="blank-icon-button" type="button" aria-label="更多"><iconify-icon icon="mdi:dots-horizontal"></iconify-icon></button>
+</div>
+</div>
+<p>把想去、吃过、朋友推荐的好店整理到这里。</p>
+<div class="blank-album-meta">1家商户，刚刚更新</div>
+</div>
+</div>
+</div>
+</header>
+<nav class="blank-detail-nav" aria-label="专辑筛选">
+<button class="blank-filter" id="success-filter-trigger" type="button"><iconify-icon icon="mdi:tune-variant"></iconify-icon><span>筛选</span></button>
+<button class="blank-filter" id="success-sort-trigger" type="button"><iconify-icon icon="mdi:sort"></iconify-icon><span>排序</span></button>
+<button class="blank-filter" id="success-edit-trigger" type="button"><iconify-icon icon="mdi:playlist-edit"></iconify-icon><span>编辑</span></button>
+<button class="blank-filter" id="success-add-trigger" type="button"><iconify-icon icon="mdi:plus-circle-outline"></iconify-icon><span>添加</span></button>
+<button class="blank-map-toggle" id="success-map-trigger" type="button" aria-label="地图模式"><iconify-icon icon="mdi:map-marker-radius-outline"></iconify-icon></button>
+</nav>
+<div class="success-edit-bar" aria-label="编辑专辑商户">
+<button class="success-select-all" id="success-select-all" type="button">□ 全选</button>
+<button class="success-edit-done" id="success-edit-done" type="button">完成</button>
+</div>
+<section class="success-filter-pop" id="success-sort-panel" aria-label="排序选项">
+<div class="success-sort-options">
+<button class="success-sort-option" type="button">距离优先</button>
+<button class="success-sort-option" type="button">人气优先</button>
+<button class="success-sort-option" type="button">好评优先</button>
+<button class="success-sort-option" type="button">口味优先</button>
+<button class="success-sort-option" type="button">环境优先</button>
+<button class="success-sort-option" type="button">服务优先</button>
+<button class="success-sort-option" type="button">低价优先</button>
+<button class="success-sort-option" type="button">高价优先</button>
+<button class="success-sort-option" type="button">加入时间从近至远</button>
+<button class="success-sort-option" type="button">加入时间从远至近</button>
+</div>
+<div class="success-filter-footer">
+<button class="success-reset" id="success-sort-reset" type="button">重置</button>
+<button class="success-confirm" id="success-sort-confirm" type="button">确定</button>
+</div>
+</section>
+<section class="success-filter-pop" id="success-filter-panel" aria-label="筛选选项">
+<div class="success-filter-body">
+<aside class="success-filter-sidebar" aria-label="筛选分类">
+<button class="success-filter-side-tab active" type="button" data-target="success-filter-price">价格</button>
+<button class="success-filter-side-tab" type="button" data-target="success-filter-promo">优惠</button>
+<button class="success-filter-side-tab" type="button" data-target="success-filter-type">餐厅类型</button>
+<button class="success-filter-side-tab" type="button" data-target="success-filter-quality">餐厅品质</button>
+<button class="success-filter-side-tab" type="button" data-target="success-filter-time">收录时间</button>
+<button class="success-filter-side-tab" type="button" data-target="success-filter-queue">排队桌数</button>
+<button class="success-filter-side-tab" type="button" data-target="success-filter-scene">用餐场景</button>
+<button class="success-filter-side-tab" type="button" data-target="success-filter-feature">设施&特色</button>
+<button class="success-filter-side-tab" type="button" data-target="success-filter-service">服务</button>
+</aside>
+<div class="success-filter-main">
+<section class="success-filter-section" id="success-filter-price">
+<h2>价格</h2>
+<div class="success-filter-options">
+<button class="success-filter-chip" type="button">50以下</button>
+<button class="success-filter-chip" type="button">50-100</button>
+<button class="success-filter-chip" type="button">100-150</button>
+<button class="success-filter-chip" type="button">150-200</button>
+<button class="success-filter-chip" type="button">200-300</button>
+<button class="success-filter-chip" type="button">300以上</button>
+</div>
+<div class="success-price-range-box">
+<div class="success-price-range-labels"><span>¥0</span><span>¥400+</span></div>
+<div class="success-price-range">
+<div class="success-price-track"></div>
+<div class="success-price-track-active"></div>
+<button class="success-price-handle min" id="success-price-min" type="button">¥50</button>
+<button class="success-price-handle max" id="success-price-max" type="button">¥300</button>
+</div>
+</div>
+</section>
+<section class="success-filter-section" id="success-filter-promo">
+<h2>优惠</h2>
+<div class="success-filter-options">
+<button class="success-filter-chip" type="button">神券商家</button>
+<button class="success-filter-chip" type="button">套餐/代金券</button>
+<button class="success-filter-chip" type="button">买单立减</button>
+<button class="success-filter-chip" type="button">促销</button>
+<button class="success-filter-chip" type="button">单人餐</button>
+<button class="success-filter-chip" type="button">双人餐</button>
+</div>
+</section>
+<section class="success-filter-section" id="success-filter-type">
+<h2>餐厅类型</h2>
+<div class="success-filter-options">
+<button class="success-filter-chip" type="button">轻餐</button>
+<button class="success-filter-chip" type="button">正餐</button>
+<button class="success-filter-chip" type="button">快餐</button>
+<button class="success-filter-chip" type="button">咖啡</button>
+<button class="success-filter-chip" type="button">酒吧</button>
+<button class="success-filter-chip" type="button">甜品</button>
+</div>
+</section>
+<section class="success-filter-section" id="success-filter-quality">
+<h2>餐厅品质</h2>
+<div class="success-filter-options">
+<button class="success-filter-chip" type="button">高分好评</button>
+<button class="success-filter-chip" type="button">朋友去过</button>
+<button class="success-filter-chip" type="button">榜单餐厅</button>
+</div>
+</section>
+<section class="success-filter-section" id="success-filter-time">
+<h2>收录时间</h2>
+<div class="success-filter-options">
+<button class="success-filter-chip" type="button">最近7天</button>
+<button class="success-filter-chip" type="button">最近30天</button>
+<button class="success-filter-chip" type="button">半年内</button>
+</div>
+</section>
+<section class="success-filter-section" id="success-filter-queue">
+<h2>排队桌数</h2>
+<div class="success-filter-options">
+<button class="success-filter-chip" type="button">免排队</button>
+<button class="success-filter-chip" type="button">少于5桌</button>
+<button class="success-filter-chip" type="button">可预约</button>
+</div>
+</section>
+<section class="success-filter-section" id="success-filter-scene">
+<h2>用餐场景</h2>
+<div class="success-filter-options">
+<button class="success-filter-chip" type="button">约会</button>
+<button class="success-filter-chip" type="button">朋友聚餐</button>
+<button class="success-filter-chip" type="button">纪念日</button>
+</div>
+</section>
+<section class="success-filter-section" id="success-filter-feature">
+<h2>设施&特色</h2>
+<div class="success-filter-options">
+<button class="success-filter-chip" type="button">景观位</button>
+<button class="success-filter-chip" type="button">露台</button>
+<button class="success-filter-chip" type="button">包厢</button>
+<button class="success-filter-chip" type="button">宠物友好</button>
+<button class="success-filter-chip" type="button">可预订</button>
+</div>
+</section>
+<section class="success-filter-section" id="success-filter-service">
+<h2>服务</h2>
+<div class="success-filter-options">
+<button class="success-filter-chip" type="button">可预订</button>
+<button class="success-filter-chip" type="button">停车方便</button>
+<button class="success-filter-chip" type="button">适合带娃</button>
+</div>
+</section>
+</div>
+</div>
+<div class="success-filter-footer">
+<button class="success-reset" id="success-filter-reset" type="button">重置</button>
+<button class="success-confirm" id="success-filter-confirm" type="button">确定</button>
+</div>
+</section>
+<div class="success-map-view" aria-hidden="true">
+<img src="assets/shanghai-amap-style-map.jpg" alt="高德地图风格上海市地图"/>
+<div class="success-walk-radius"><span>步行10分钟内可达</span></div>
+<span class="success-map-marker" style="left: 180px; top: 280px;">★</span>
+<span class="success-user-marker"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/bf2982a2629544e790394e23b1440757.jpg" alt="我的位置"/></span>
+</div>
+<main class="success-content" id="success-content">
+<div id="success-merchant-slot"></div>
+</main>
+<div class="success-edit-actions">
+<button class="success-delete" type="button">删除</button>
+</div>
+</div>
+<div class="confetti-toast" id="confetti-toast">已添加成功</div>
+</div>
+<script>
+        function setActiveTab(element) {
+            // 获取所有 Tab
+            const tabs = element.parentElement.querySelectorAll('.flex-col');
+            tabs.forEach(tab => {
+                tab.classList.remove('text-[#FF6B35]', 'font-bold');
+                tab.classList.add('text-gray-400');
+                // 还原图标名（模拟高亮逻辑，实际可替换图标）
+            });
+            // 设置当前 Tab
+            element.classList.remove('text-gray-400');
+            element.classList.add('text-[#FF6B35]', 'font-bold');
+        }
+
+        // 模拟城市选择下拉交互
+        const citySelector = document.querySelector('.relative.flex.items-center.text-black.font-bold');
+        citySelector.addEventListener('click', () => {
+            alert('切换城市功能：已选择上海');
+        });
+
+        // 模拟搜索框点击
+        const searchInput = document.querySelector('.flex-1.flex.items-center.bg-\\[\\#F5F5F5\\]');
+        searchInput.addEventListener('click', () => {
+            console.log('搜索功能激活');
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            window.setTimeout(() => {
+                document.getElementById('cold-start-modal')?.classList.add('show');
+            }, 2000);
+        });
+
+        const coldStartModal = document.getElementById('cold-start-modal');
+        const createAlbumOverlay = document.getElementById('create-album-overlay');
+        const albumTitleInput = document.getElementById('album-title-input');
+        const albumTitleCount = document.getElementById('album-title-count');
+        const privateToggle = document.getElementById('private-toggle');
+        const blankAlbumPage = document.getElementById('blank-album-page');
+        const addPlacePage = document.getElementById('add-place-page');
+        const successAlbumPage = document.getElementById('success-album-page');
+        const placeList = document.getElementById('place-list');
+        const confettiToast = document.getElementById('confetti-toast');
+        const successMerchantSlot = document.getElementById('success-merchant-slot');
+        const successFilterTrigger = document.getElementById('success-filter-trigger');
+        const successSortTrigger = document.getElementById('success-sort-trigger');
+        const successFilterPanel = document.getElementById('success-filter-panel');
+        const successSortPanel = document.getElementById('success-sort-panel');
+        let successMerchantCount = 0;
+
+        const placeData = {
+            checkin: [
+                { name: '夏朵餐厅', rating: '4.8', category: '西餐', price: '¥268/人', area: '新天地', reviews: '500条评价', rank: '静安区特色菜环境榜第2名', photo: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=180&h=180&fit=crop' },
+                { name: '暮色露台 Bistro', rating: '4.6', category: '西餐', price: '¥221/人', area: '外滩', reviews: '386条评价', rank: '黄浦区西餐氛围榜第3名', photo: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=180&h=180&fit=crop' },
+                { name: 'Blue Hour 酒吧', rating: '4.7', category: '酒吧', price: '¥168/人', area: '巨鹿路', reviews: '720条评价', rank: '静安区酒吧热门榜第1名', photo: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=180&h=180&fit=crop' },
+                { name: '小满花园餐厅', rating: '4.5', category: '创意菜', price: '¥198/人', area: '武康路', reviews: '294条评价', rank: '徐汇区约会餐厅榜第4名', photo: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=180&h=180&fit=crop' }
+            ],
+            review: [
+                { name: '夏朵餐厅', rating: '4.8', category: '西餐', price: '¥268/人', area: '新天地', reviews: '500条评价', rank: '静安区特色菜环境榜第2名', action: '评价过', note: '松露意面香气浓郁，牛排火候稳定，窗边位置的光影很适合约会。', photo: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=180&h=180&fit=crop' },
+                { name: '暮色露台 Bistro', rating: '4.6', category: '西餐', price: '¥221/人', area: '外滩', reviews: '386条评价', rank: '黄浦区西餐氛围榜第3名', action: '评价过', note: '露台视野开阔，烤鸡和沙拉都很清爽，傍晚来用餐氛围最好。', photo: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=180&h=180&fit=crop' },
+                { name: 'Blue Hour 酒吧', rating: '4.7', category: '酒吧', price: '¥168/人', area: '巨鹿路', reviews: '720条评价', rank: '静安区酒吧热门榜第1名', action: '评价过', note: '招牌特调层次很干净，配小食刚好，音乐和灯光都不吵。', photo: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=180&h=180&fit=crop' }
+            ],
+            note: [
+                { name: '夏朵餐厅', rating: '4.8', category: '西餐', price: '¥268/人', area: '新天地', reviews: '500条评价', rank: '静安区特色菜环境榜第2名', action: '写过笔记', note: '靠窗位很出片，松露意面和牛排都值得点，适合纪念日。', photo: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=180&h=180&fit=crop' },
+                { name: '小满花园餐厅', rating: '4.5', category: '创意菜', price: '¥198/人', area: '武康路', reviews: '294条评价', rank: '徐汇区约会餐厅榜第4名', action: '写过笔记', note: '菜品选择多，花园座位舒适，朋友聚餐不会踩雷。', photo: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=180&h=180&fit=crop' },
+                { name: 'Blue Hour 酒吧', rating: '4.7', category: '酒吧', price: '¥168/人', area: '巨鹿路', reviews: '720条评价', rank: '静安区酒吧热门榜第1名', action: '写过笔记', note: '下班后小坐很舒服，酒单稳定，小食也比预期好。', photo: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=180&h=180&fit=crop' }
+            ]
+        };
+
+        function starMarkup(rating) {
+            const fullCount = Math.floor(Number(rating));
+            return Array.from({ length: 5 }, (_, index) => `<span${index >= fullCount ? ' class="gray"' : ''}>★</span>`).join('');
+        }
+
+        function renderPlaces(tabName) {
+            placeList.innerHTML = placeData[tabName].map(place => {
+                const isLong = tabName !== 'checkin';
+                const details = isLong
+                    ? `<p>${place.footprint}</p><p class="place-note">${place.note}</p>`
+                    : '';
+                return `
+                    <article class="place-card${isLong ? ' long' : ''}" data-tab="${tabName}" data-name="${place.name}">
+                        <img class="place-thumb" src="${place.photo}" alt="${place.name}封面图" />
+                        <div class="place-info">
+                            <h2>${place.name}</h2>
+                            <div class="place-rating-line"><span class="stars" aria-label="${place.rating}星">${starMarkup(place.rating)}</span><span class="place-rating-score">${place.rating}</span><span class="place-category">${place.category}</span></div>
+                            ${details}
+                        </div>
+                        <button class="place-add" type="button" aria-label="添加${place.name}"><iconify-icon icon="mdi:plus"></iconify-icon></button>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function detailForPlace(place) {
+            return {
+                tags: place.category === '酒吧' ? ['微醺', '朋友聚会', '氛围感'] : ['氛围感', '约会餐厅', '景观位'],
+                dishes: place.category === '酒吧'
+                    ? [
+                        ['https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300&h=300&fit=crop', '招牌特调'],
+                        ['https://images.unsplash.com/photo-1544145945-f90425340c7e?w=300&h=300&fit=crop', '柚子 Highball'],
+                        ['https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=300&h=300&fit=crop', '牛肉小汉堡']
+                    ]
+                    : [
+                        ['https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=300&h=300&fit=crop', '松露意面'],
+                        ['https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&h=300&fit=crop', '惠灵顿牛排'],
+                        ['https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop', '烤南瓜浓汤']
+                    ]
+            };
+        }
+
+        function renderSuccessMerchant(place) {
+            const details = detailForPlace(place);
+            const footprint = `${place.action || '打卡过'}，${place.rating}星`;
+            const note = place.note || '菜品出品稳定，餐厅环境舒服，适合收藏后约朋友再来。';
+            successMerchantCount += 1;
+            successMerchantSlot.insertAdjacentHTML('afterbegin', `
+                <article class="restaurant-card tap" data-merchant-id="${successMerchantCount}">
+                    <button class="success-merchant-select" type="button" aria-label="选择商户">✓</button>
+                    <div class="restaurant-head"><h2>${place.name}</h2></div>
+                    <div class="restaurant-meta">
+                        <span class="restaurant-rating-left"><span class="stars" aria-label="${place.rating}星">${starMarkup(place.rating)}</span><span class="rating-score">${place.rating}</span><span class="review-count">${place.reviews}</span></span>
+                        <strong>${place.price}</strong>
+                    </div>
+                    <div class="restaurant-category-line"><span>${place.category}</span><span>${place.area}</span><span class="rank-tag">${place.rank}</span></div>
+                    <div class="restaurant-tags">${details.tags.map(tag => `<span>${tag}</span>`).join('')}</div>
+                    <div class="dish-grid">${details.dishes.map(([src, label]) => `<div class="detail-dish"><img src="${src}" alt="${label}"/><span class="dish-label">${label}</span></div>`).join('')}</div>
+                    <div class="recommend-row"><img src="https://modao.cc/agent-py/media/generated_images/2026-07-07/923143458e3a43e2b32eab60c41f3fff.jpg" alt="小雅头像"/><span>由小雅推荐</span></div>
+                    <div class="review-copy">
+                        <div class="review-date"><span>2026.07.01</span><strong>${footprint}</strong></div>
+                        <p>“${note}”</p>
+                    </div>
+                    <div class="detail-divider"></div>
+                    <div class="been-row">
+                        <div class="been-friends">
+                            <span>3位好友去过</span>
+                            <span class="friend-stack">
+                                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/721e9131bfc74718add0e404f0aa055f.jpg" alt="好友 1"/>
+                                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/075389cc85f54aa0b3a71274942c40b5.jpg" alt="好友 2"/>
+                                <img src="https://modao.cc/agent-py/media/generated_images/2026-07-08/0696c03d6d84430c99f0f1391cb68589.jpg" alt="好友 3"/>
+                            </span>
+                        </div>
+                        <span>♙</span>
+                    </div>
+                </article>
+            `);
+            successAlbumPage.querySelector('.blank-album-meta').textContent = `${successMerchantCount}家商户，刚刚更新`;
+        }
+
+        function closeSuccessPanels() {
+            successFilterPanel.classList.remove('show');
+            successSortPanel.classList.remove('show');
+        }
+
+        const successPriceRange = document.querySelector('.success-price-range');
+        const successPriceTrackActive = document.querySelector('.success-price-track-active');
+        const successPriceMin = document.getElementById('success-price-min');
+        const successPriceMax = document.getElementById('success-price-max');
+        const successPriceState = { min: 50, max: 300 };
+
+        function updateSuccessPriceRange() {
+            const minPercent = successPriceState.min / 400 * 100;
+            const maxPercent = successPriceState.max / 400 * 100;
+            successPriceMin.style.left = `calc(${minPercent}% - 19px)`;
+            successPriceMax.style.left = `calc(${maxPercent}% - 19px)`;
+            successPriceMax.style.right = 'auto';
+            successPriceTrackActive.style.left = `${minPercent}%`;
+            successPriceTrackActive.style.right = `${100 - maxPercent}%`;
+            successPriceMin.textContent = `¥${successPriceState.min}`;
+            successPriceMax.textContent = successPriceState.max >= 400 ? '¥400+' : `¥${successPriceState.max}`;
+        }
+
+        function bindSuccessPriceDrag(handle, key) {
+            let dragging = false;
+            function setFromClientX(clientX) {
+                const rect = successPriceRange.getBoundingClientRect();
+                const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                const value = Math.round(percent * 400 / 10) * 10;
+                if (key === 'min') {
+                    successPriceState.min = Math.min(value, successPriceState.max - 10);
+                } else {
+                    successPriceState.max = Math.max(value, successPriceState.min + 10);
+                }
+                updateSuccessPriceRange();
+            }
+            handle.addEventListener('pointerdown', (event) => {
+                dragging = true;
+                handle.setPointerCapture?.(event.pointerId);
+                setFromClientX(event.clientX);
+            });
+            handle.addEventListener('pointermove', (event) => {
+                if (!dragging) return;
+                setFromClientX(event.clientX);
+            });
+            handle.addEventListener('pointerup', () => {
+                dragging = false;
+            });
+            handle.addEventListener('pointercancel', () => {
+                dragging = false;
+            });
+        }
+        bindSuccessPriceDrag(successPriceMin, 'min');
+        bindSuccessPriceDrag(successPriceMax, 'max');
+        updateSuccessPriceRange();
+
+        document.getElementById('experience-hotspot').addEventListener('click', () => {
+            coldStartModal.classList.remove('show');
+            createAlbumOverlay.classList.add('show');
+            window.setTimeout(() => albumTitleInput.focus(), 280);
+        });
+
+        albumTitleInput.addEventListener('input', () => {
+            const limited = albumTitleInput.value.slice(0, 15);
+            if (albumTitleInput.value !== limited) {
+                albumTitleInput.value = limited;
+            }
+            albumTitleCount.textContent = String(15 - albumTitleInput.value.length);
+        });
+
+        privateToggle.addEventListener('click', () => {
+            privateToggle.classList.toggle('checked');
+            privateToggle.setAttribute('aria-pressed', String(privateToggle.classList.contains('checked')));
+        });
+
+        document.getElementById('create-album-done').addEventListener('click', () => {
+            const title = albumTitleInput.value.trim() || '我的心选专辑';
+            document.getElementById('blank-album-title').textContent = title;
+            document.getElementById('success-album-title').textContent = title;
+            successMerchantCount = 0;
+            successMerchantSlot.innerHTML = '';
+            successAlbumPage.querySelector('.blank-album-meta').textContent = '0家商户，刚刚创建';
+            createAlbumOverlay.classList.remove('show');
+            blankAlbumPage.classList.add('show');
+        });
+
+        document.getElementById('open-add-place').addEventListener('click', () => {
+            renderPlaces('checkin');
+            blankAlbumPage.classList.remove('show');
+            addPlacePage.classList.add('show');
+        });
+
+        document.getElementById('add-place-close').addEventListener('click', () => {
+            addPlacePage.classList.remove('show');
+            blankAlbumPage.classList.add('show');
+        });
+
+        document.getElementById('blank-home-back').addEventListener('click', () => {
+            blankAlbumPage.classList.remove('show');
+            addPlacePage.classList.remove('show');
+            createAlbumOverlay.classList.remove('show');
+            coldStartModal.classList.remove('show');
+        });
+
+        document.querySelectorAll('.add-place-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.add-place-tab').forEach(item => item.classList.remove('active'));
+                tab.classList.add('active');
+                renderPlaces(tab.dataset.tab);
+            });
+        });
+
+        placeList.addEventListener('click', event => {
+            const addButton = event.target.closest('.place-add');
+            if (!addButton) return;
+            const placeCard = addButton.closest('.place-card');
+            const selectedTab = placeCard.dataset.tab;
+            const selectedName = placeCard.dataset.name;
+            const selectedPlace = placeData[selectedTab].find(place => place.name === selectedName) || placeData.checkin[0];
+            renderSuccessMerchant(selectedPlace);
+            confettiToast.classList.remove('show');
+            void confettiToast.offsetWidth;
+            confettiToast.classList.add('show');
+            window.setTimeout(() => {
+                addPlacePage.classList.remove('show');
+                successAlbumPage.classList.add('show');
+            }, 650);
+        });
+
+        document.getElementById('success-home-back').addEventListener('click', () => {
+            closeSuccessPanels();
+            successAlbumPage.classList.remove('show', 'is-edit-mode', 'has-selection', 'is-map-mode');
+            addPlacePage.classList.remove('show');
+            blankAlbumPage.classList.remove('show');
+            createAlbumOverlay.classList.remove('show');
+            coldStartModal.classList.remove('show');
+            document.getElementById('my-new-badge').classList.add('show');
+        });
+
+        successFilterTrigger.addEventListener('click', () => {
+            successSortPanel.classList.remove('show');
+            successFilterPanel.classList.toggle('show');
+            successAlbumPage.classList.remove('is-map-mode');
+        });
+
+        successSortTrigger.addEventListener('click', () => {
+            successFilterPanel.classList.remove('show');
+            successSortPanel.classList.toggle('show');
+            successAlbumPage.classList.remove('is-map-mode');
+        });
+
+        document.querySelectorAll('.success-filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => chip.classList.toggle('active'));
+        });
+
+        document.querySelectorAll('.success-filter-side-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.success-filter-side-tab').forEach(item => item.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.target)?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+            });
+        });
+
+        document.querySelectorAll('.success-sort-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.success-sort-option').forEach(item => item.classList.remove('active'));
+                option.classList.add('active');
+            });
+        });
+
+        document.getElementById('success-filter-reset').addEventListener('click', () => {
+            document.querySelectorAll('.success-filter-chip').forEach(chip => chip.classList.remove('active'));
+            successPriceState.min = 50;
+            successPriceState.max = 300;
+            updateSuccessPriceRange();
+            successFilterTrigger.querySelector('span').textContent = '筛选';
+            successFilterPanel.classList.remove('show');
+        });
+
+        document.getElementById('success-filter-confirm').addEventListener('click', () => {
+            const count = document.querySelectorAll('.success-filter-chip.active').length;
+            successFilterTrigger.querySelector('span').textContent = count ? `筛选(${count})` : '筛选';
+            successFilterPanel.classList.remove('show');
+        });
+
+        document.getElementById('success-sort-reset').addEventListener('click', () => {
+            document.querySelectorAll('.success-sort-option').forEach(option => option.classList.remove('active'));
+            successSortTrigger.querySelector('span').textContent = '排序';
+            successSortPanel.classList.remove('show');
+        });
+
+        document.getElementById('success-sort-confirm').addEventListener('click', () => {
+            const activeSort = document.querySelector('.success-sort-option.active');
+            successSortTrigger.querySelector('span').textContent = activeSort ? activeSort.textContent : '排序';
+            successSortPanel.classList.remove('show');
+        });
+
+        document.getElementById('success-edit-trigger').addEventListener('click', () => {
+            closeSuccessPanels();
+            successAlbumPage.classList.remove('is-map-mode');
+            successAlbumPage.classList.add('is-edit-mode');
+        });
+
+        document.getElementById('success-edit-done').addEventListener('click', () => {
+            successAlbumPage.classList.remove('is-edit-mode', 'has-selection');
+            document.getElementById('success-select-all').textContent = '□ 全选';
+            successMerchantSlot.querySelectorAll('.restaurant-card').forEach(card => card.classList.remove('is-selected'));
+        });
+
+        document.getElementById('success-select-all').addEventListener('click', () => {
+            const willSelect = !successAlbumPage.classList.contains('has-selection');
+            successAlbumPage.classList.toggle('has-selection', willSelect);
+            document.getElementById('success-select-all').textContent = willSelect ? '☑ 全选' : '□ 全选';
+            successMerchantSlot.querySelectorAll('.restaurant-card').forEach(card => card.classList.toggle('is-selected', willSelect));
+        });
+
+        successMerchantSlot.addEventListener('click', event => {
+            if (!successAlbumPage.classList.contains('is-edit-mode')) return;
+            const card = event.target.closest('.restaurant-card');
+            if (!card) return;
+            card.classList.toggle('is-selected');
+            const selectedCount = successMerchantSlot.querySelectorAll('.restaurant-card.is-selected').length;
+            const cardCount = successMerchantSlot.querySelectorAll('.restaurant-card').length;
+            successAlbumPage.classList.toggle('has-selection', selectedCount > 0);
+            document.getElementById('success-select-all').textContent = selectedCount === cardCount ? '☑ 全选' : '□ 全选';
+        });
+
+        document.getElementById('success-add-trigger').addEventListener('click', () => {
+            closeSuccessPanels();
+            successAlbumPage.classList.remove('show', 'is-edit-mode', 'has-selection', 'is-map-mode');
+            successMerchantSlot.querySelectorAll('.restaurant-card').forEach(card => card.classList.remove('is-selected'));
+            document.getElementById('success-select-all').textContent = '□ 全选';
+            renderPlaces(document.querySelector('.add-place-tab.active')?.dataset.tab || 'checkin');
+            addPlacePage.classList.add('show');
+        });
+
+        document.getElementById('success-map-trigger').addEventListener('click', () => {
+            closeSuccessPanels();
+            successAlbumPage.classList.remove('is-edit-mode', 'has-selection');
+            successAlbumPage.classList.toggle('is-map-mode');
+        });
+
+        document.getElementById('my-tab').addEventListener('click', () => {
+            window.location.href = 'dianping-heart-album-demo-v32.html';
+        });
+    </script>
+</body>
+</html>
